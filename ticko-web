@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TICKO | Boletería Profesional con QR</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  .event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  }
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+  #events {
+    max-height: 600px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  #events::-webkit-scrollbar {
+    width: 8px;
+  }
+  #events::-webkit-scrollbar-thumb {
+    background-color: #ec4899;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body class="bg-gradient-to-b from-pink-50 via-pink-100 to-pink-50 min-h-screen flex flex-col">
+
+<header class="bg-pink-700 text-white shadow p-6 sticky top-0 z-50 flex items-center justify-between max-w-7xl mx-auto">
+  <h1 class="font-extrabold text-3xl tracking-wide cursor-pointer">TICKO</h1>
+  <nav class="space-x-6 hidden md:flex">
+    <a href="#events" class="hover:underline font-semibold">Eventos</a>
+    <a href="#contact" class="hover:underline font-semibold">Contacto</a>
+  </nav>
+</header>
+
+<main class="flex-grow max-w-7xl mx-auto p-6 flex flex-col md:flex-row gap-12">
+
+  <section class="md:w-2/3">
+    <h2 class="text-4xl font-extrabold text-pink-700 mb-6">Próximos Eventos Destacados</h2>
+    <div id="events" class="space-y-8">
+      <!-- Eventos dinámicos irán aquí -->
+    </div>
+  </section>
+
+  <aside class="md:w-1/3 bg-white rounded-xl shadow-lg p-6 sticky top-20 h-fit">
+    <h3 class="text-2xl font-bold mb-4 text-pink-600">¿Quieres vender tus eventos?</h3>
+    <p class="text-gray-700 mb-4">Regístrate y publica tus eventos de forma fácil y rápida.</p>
+    <button class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded w-full transition-all">Regístrate</button>
+    <div class="mt-8 text-sm text-gray-600 space-y-1">
+      <p><strong>Métodos de Pago:</strong></p>
+      <ul class="list-disc list-inside">
+        <li>Pago Móvil: 0412-4723147 (CI 25.551.326)</li>
+        <li>Transferencia: 01080048080100247498</li>
+        <li>Binance/Zelle/PayPal: ivorchirinos@gmail.com</li>
+        <li>Efectivo en taquilla</li>
+      </ul>
+    </div>
+  </aside>
+</main>
+
+<!-- Modal compra -->
+<section id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50 overflow-auto">
+  <div class="bg-white rounded-2xl max-w-lg w-full shadow-xl p-8 relative">
+    <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-900 text-3xl font-bold cursor-pointer">&times;</button>
+    <h2 id="purchase-event-title" class="text-3xl font-extrabold text-pink-700 mb-6"></h2>
+
+    <form id="purchase-form" class="space-y-6">
+      <!-- Paso 1: Selección entradas -->
+      <div id="step-1" class="step">
+        <label class="block font-semibold mb-2">Número de Entradas</label>
+        <input type="number" id="ticket-quantity" min="1" max="10" value="1" class="w-full p-3 border rounded focus:ring-2 focus:ring-pink-500" required />
+      </div>
+
+      <!-- Paso 2: Datos usuario -->
+      <div id="step-2" class="step hidden">
+        <label class="block font-semibold mb-2">Nombre Completo</label>
+        <input type="text" id="buyer-name" placeholder="Ej. María Pérez" class="w-full p-3 border rounded focus:ring-2 focus:ring-pink-500" required />
+        <label class="block font-semibold mt-4 mb-2">Correo Electrónico</label>
+        <input type="email" id="buyer-email" placeholder="correo@ejemplo.com" class="w-full p-3 border rounded focus:ring-2 focus:ring-pink-500" required />
+      </div>
+
+      <!-- Paso 3: Método y comprobante -->
+      <div id="step-3" class="step hidden">
+        <label class="block font-semibold mb-2">Método de Pago</label>
+        <select id="payment-method" class="w-full p-3 border rounded focus:ring-2 focus:ring-pink-500" required>
+          <option value="">Selecciona un método</option>
+          <option>Transferencia</option>
+          <option>Pago Móvil</option>
+          <option>Binance USDT</option>
+          <option>Zelle</option>
+          <option>PayPal</option>
+          <option>Efectivo en Taquilla</option>
+        </select>
+        <label class="block font-semibold mt-4 mb-2">Número de Referencia de Pago</label>
+        <input type="text" id="payment-reference" placeholder="Ej. 123abc456" class="w-full p-3 border rounded focus:ring-2 focus:ring-pink-500" required />
+        <label class="block font-semibold mt-4 mb-2">Adjuntar Comprobante</label>
+        <input type="file" id="payment-proof" accept="image/*,application/pdf" class="w-full p-2 border rounded focus:ring-2 focus:ring-pink-500" required />
+      </div>
+      
+      <!-- Paso 4: Ticket final con QR -->
+      <div id="step-4" class="step hidden text-center">
+        <h3 class="text-2xl font-bold mb-4 text-pink-700">Tu Entrada Digital</h3>
+        <p class="mb-2 font-semibold" id="ticket-info"></p>
+        <canvas id="qr-code" class="mx-auto mb-4"></canvas>
+        <p class="text-sm text-gray-700">Muestra este código QR en la entrada para tu validación.</p>  
+      </div>
+
+      <!-- Navegación pasos -->
+      <div class="flex justify-between mt-6">
+        <button type="button" id="prev-step" class="bg-gray-300 hover:bg-gray-400 px-5 py-3 rounded font-semibold" disabled>Anterior</button>
+        <button type="button" id="next-step" class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-3 rounded font-semibold">Siguiente</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer id="contact" class="bg-pink-700 text-white py-6 mt-20 text-center max-w-7xl mx-auto rounded-t-xl space-y-3">
+  <p>Correo: <a href="mailto:soporte@ticko.com" class="underline hover:text-pink-300">soporte@ticko.com</a> | WhatsApp: <a href="https://wa.me/584124723147" target="_blank" class="underline hover:text-pink-300">+58 412 4723147</a></p>
+  <p>Síguenos en: 
+    <a href="https://instagram.com/ticko" target="_blank" class="underline hover:text-pink-300">Instagram</a> | 
+    <a href="https://tiktok.com/@ticko" target="_blank" class="underline hover:text-pink-300">TikTok</a>
+  </p>
+  <p class="text-sm">© 2024 TICKO - Todos los derechos reservados.</p>
+</footer>
+
+<script>
+  // Eventos simulados
+  const events = [
+    {
+      id: 'karaoke',
+      title: "Jueves de Karaoke (Steph Music)",
+      img: "https://picsum.photos/id/1044/480/280",
+      date: "15 de Julio, 2024 - 8PM",
+      venue: "Teatro Central, Caracas",
+      priceUSD: 15,
+      desc: "Disfruta de una noche inolvidable cantando tus canciones favoritas.",
+      paymentMethods: ["Transferencia", "Pago Móvil", "Efectivo", "Binance USDT", "Zelle", "PayPal"]
+    },
+    {
+      id: 'rock',
+      title: "Rock en Vivo - La Banda Sónica",
+      img: "https://picsum.photos/id/1080/480/280",
+      date: "20 de Julio, 2024 - 9PM",
+      venue: "Estadio Metropolitano, Caracas",
+      priceUSD: 30,
+      desc: "Vive la energía del rock con una de las bandas más emblemáticas.",
+      paymentMethods: ["Transferencia", "Pago Móvil", "Binance USDT", "Zelle", "PayPal"]
+    },
+    {
+      id: 'teatro',
+      title: "Obra de Teatro 'Sueños Despiertos'",
+      img: "https://picsum.photos/id/1025/480/280",
+      date: "25 de Julio, 2024 - 7PM",
+      venue: "Teatro Nacional, Caracas",
+      priceUSD: 20,
+      desc: "Una producción conmovedora y llena de talento local.",
+      paymentMethods: ["Transferencia", "Pago Móvil", "Efectivo", "Zelle", "PayPal"]
+    },
+    {
+      id: 'festival',
+      title: "Festival Folklórico 2024",
+      img: "https://picsum.photos/id/1011/480/280",
+      date: "1-3 de Agosto, 2024",
+      venue: "Parque Cultural, Caracas",
+      priceUSD: 50,
+      desc: "Tres días con música, danza y gastronomía típica de Venezuela.",
+      paymentMethods: ["Transferencia", "Efectivo", "PayPal"]
+    },
+    {
+      id: 'electro',
+      title: "Noche Electrónica con DJ Lúmen",
+      img: "https://picsum.photos/id/1015/480/280",
+      date: "10 de Agosto, 2024 - 11PM",
+      venue: "Club Neon, Caracas",
+      priceUSD: 25,
+      desc: "Una fiesta de música electrónica para bailar toda la noche.",
+      paymentMethods: ["Transferencia", "Binance USDT", "PayPal"]
+    },
+  ];
+
+  const eventsContainer = document.getElementById('events');
+  const purchaseModal = document.getElementById('purchase-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const purchaseEventTitle = document.getElementById('purchase-event-title');
+  const purchaseForm = document.getElementById('purchase-form');
+  const nextBtn = document.getElementById('next-step');
+  const prevBtn = document.getElementById('prev-step');
+  const steps = document.querySelectorAll('.step');
+  const qrCanvas = document.getElementById('qr-code');
+  const ticketInfo = document.getElementById('ticket-info');
+
+  let currentStep = 1;
+  let selectedEvent = null;
+  let purchaseId = null;
+
+  // Renderizar eventos
+  events.forEach(ev => {
+    const card = document.createElement('article');
+    card.className = "transition-all event-card cursor-pointer bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
+
+    card.innerHTML = `
+      <img src="${ev.img}" alt="${ev.title}" class="w-full object-cover h-48"/>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold mb-2 text-pink-700">${ev.title}</h3>
+        <p class="text-gray-600 font-semibold">${ev.date}</p>
+        <p class="text-gray-600 font-semibold mb-2">${ev.venue}</p>
+        <p class="text-gray-700 mb-4">${ev.desc}</p>
+        <p class="text-pink-600 font-extrabold mb-3">Precio: ${ev.priceUSD} USD</p>
+        <button class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded w-full" data-eventid="${ev.id}">
+          Comprar Entrada
+        </button>
+      </div>
+    `;
+
+    eventsContainer.appendChild(card);
+  });
+
+  // Mostrar paso
+  function showStep(step) {
+    steps.forEach((el, idx) => {
+      el.classList.toggle('hidden', idx !== step-1);
+    });
+    prevBtn.disabled = step === 1;
+    nextBtn.textContent = (step === steps.length) ? 'Finalizar Compra' : 'Siguiente';
+    currentStep = step;
+  }
+
+  // Validar inputs por paso
+  function validateStep(step) {
+    if(step === 1) {
+      const qty = document.getElementById('ticket-quantity').value;
+      return qty >= 1 && qty <= 10;
+    }
+    if(step === 2) {
+      const name = document.getElementById('buyer-name').value.trim();
+      const email = document.getElementById('buyer-email').value.trim();
+      return name.length >= 3 && email.includes('@');
+    }
+    if(step === 3) {
+      const method = document.getElementById('payment-method').value;
+      const ref = document.getElementById('payment-reference').value.trim();
+      const proof = document.getElementById('payment-proof').files.length;
+      return method !== '' && ref.length >= 3 && proof > 0;
+    }
+    return true;
+  }
+
+  // Reset formulario y estado
+  function resetForm() {
+    purchaseForm.reset();
+    qrCanvas.getContext('2d').clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+    ticketInfo.textContent = '';
+    purchaseId = null;
+    showStep(1);
+  }
+
+  // Abrir modal
+  function openPurchaseModal(eventId) {
+    selectedEvent = events.find(ev => ev.id === eventId);
+    purchaseEventTitle.textContent = selectedEvent.title + ` - $${selectedEvent.priceUSD} USD`;
+    resetForm();
+    purchaseModal.classList.remove('hidden');
+  }
+
+  // Cerrar modal
+  closeModalBtn.addEventListener('click', () => {
+    purchaseModal.classList.add('hidden');
+  });
+
+  // Navegación pasos
+  nextBtn.addEventListener('click', () => {
+    if(!validateStep(currentStep)) {
+      alert('Por favor, completa correctamente los campos antes de continuar.');
+      return;
+    }
+    if(currentStep < steps.length) {
+      showStep(currentStep + 1);
+      if(currentStep === steps.length) {
+        createTicketQR();
+      }
+    } else {
+      // Finalizar compra (puedes conectar backend aquí)
+      alert('Compra finalizada y ticket generado. Revisa tu correo con la entrada digital.');
+      purchaseModal.classList.add('hidden');
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if(currentStep > 1) showStep(currentStep - 1);
+  });
+
+  // Genera ID compra único simulado
+  function generatePurchaseId() {
+    return 'TICKO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  }
+
+  // Generar y mostrar QR al finalizar pasos de compra
+  function createTicketQR() {
+    purchaseId = generatePurchaseId();
+    let qty = document.getElementById('ticket-quantity').value;
+    let name = document.getElementById('buyer-name').value.trim();
+    ticketInfo.textContent = `Entrada para: ${name} | Evento: ${selectedEvent.title} | Cantidad: ${qty} | ID: ${purchaseId}`;
+
+    // Código QR con contenido JSON
+    const qrData = JSON.stringify({
+      purchaseId,
+      eventId: selectedEvent.id,
+      buyerName: name,
+      quantity: qty,
+      eventTitle: selectedEvent.title,
+      date: selectedEvent.date,
+      venue: selectedEvent.venue
+    });
+
+    QRCode.toCanvas(qrCanvas, qrData, {width: 230}, function (error) {
+      if (error) console.error(error);
+    });
+  }
+
+  // Abrir modal al hacer clic en botón comprar
+  eventsContainer.addEventListener('click', e => {
+    if(e.target.tagName === 'BUTTON' && e.target.dataset.eventid) {
+      openPurchaseModal(e.target.dataset.eventid);
+    }
+  });
+
+  // Inicia en paso 1
+  showStep(1);
+
+</script>
+
+</body>
+</html>
