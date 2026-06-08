@@ -18,23 +18,25 @@
   .event-card:hover { transform: translateY(-10px) rotateX(2deg) rotateY(2deg); box-shadow: 0 20px 40px rgba(236, 72, 153, 0.15); }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-darkBg dark:text-slate-100 min-h-screen">
+<body class="bg-slate-50 text-slate-800 dark:bg-darkBg dark:text-slate-100 min-h-screen flex flex-col">
 
-<header class="w-full bg-white/80 dark:bg-darkCard/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
+<header class="w-full bg-white/80 dark:bg-darkCard/80 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300">
   <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-    <h1 class="font-black text-3xl explosive-gradient text-transparent bg-clip-text cursor-pointer" onclick="window.location.reload()">TICKO</h1>
-    <button id="admin-panel-btn" class="text-purple-500 bg-purple-500/10 px-4 py-2 rounded-xl font-bold border border-purple-500/20 text-sm">🔑 Panel Admin</button>
+    <h1 class="font-black text-3xl tracking-tighter text-transparent bg-clip-text explosive-gradient cursor-pointer" onclick="window.location.reload()">TICKO</h1>
+    <nav class="flex items-center space-x-6 font-bold text-sm md:text-base">
+      <button id="admin-panel-btn" class="text-purple-500 bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 text-xs md:text-sm">🔑 Panel Admin</button>
+    </nav>
   </div>
 </header>
 
-<main id="main-storefront" class="max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row gap-8">
+<main id="main-storefront" class="flex-grow max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row gap-8">
   <section id="events-section" class="lg:w-2/3">
     <div id="events" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
   </section>
   <aside class="lg:w-1/3">
-    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-purple-500/20 sticky top-24">
-      <h3 class="text-xl font-black mb-2">🔍 Consultar mi Estatus</h3>
-      <input type="text" id="search-ticket-id" placeholder="CÓDIGO DE ORDEN" class="w-full p-3 bg-white/10 rounded-xl mb-3 text-center uppercase font-bold" />
+    <div id="check-ticket-section" class="bg-gradient-to-br from-slate-900 to-purple-950 text-white rounded-2xl shadow-xl p-6 border border-purple-500/20 sticky top-24">
+      <h3 class="text-xl font-black mb-4">🔍 Consultar mi Estatus</h3>
+      <input type="text" id="search-ticket-id" placeholder="CÓDIGO DE ORDEN" class="w-full p-3 bg-white/10 rounded-xl mb-3 text-center text-lg font-mono font-bold uppercase" />
       <button id="btn-search-ticket" class="w-full py-3 rounded-xl explosive-btn font-bold">Buscar mi Entrada</button>
       <div id="search-result-box" class="hidden mt-4 p-4 rounded-xl border bg-white/5 text-center"></div>
     </div>
@@ -43,14 +45,14 @@
 
 <section id="admin-dashboard" class="max-w-7xl w-full mx-auto p-6 hidden">
   <h2 class="text-3xl font-black mb-6 text-purple-500">🛡️ Consola Administrativa</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow">
-      <h3 class="font-bold mb-4">Órdenes Pendientes</h3>
-      <table class="w-full text-sm"><tbody id="admin-table-rows"></tbody></table>
+        <h3 class="font-bold mb-4">Órdenes Pendientes</h3>
+        <table class="w-full text-sm"><tbody id="admin-table-rows"></tbody></table>
     </div>
     <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow">
-      <h3 class="font-bold mb-4">📊 Informe Financiero por Evento</h3>
-      <div id="reporte-body" class="text-sm space-y-2"></div>
+        <h3 class="font-bold mb-4">📊 Informe Financiero</h3>
+        <div id="reporte-body" class="space-y-2 text-sm"></div>
     </div>
   </div>
 </section>
@@ -59,10 +61,10 @@
   <div class="bg-white dark:bg-darkCard rounded-2xl max-w-xl w-full p-8 relative">
     <button onclick="document.getElementById('purchase-modal').classList.add('hidden')" class="absolute top-4 right-5 text-2xl font-bold">&times;</button>
     <h2 id="purchase-event-title" class="text-2xl font-black mb-6"></h2>
-    <input type="number" id="ticket-quantity" value="1" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3" placeholder="Cantidad de tickets">
-    <input type="text" id="buyer-name" placeholder="Nombre completo" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3">
+    <input type="number" id="ticket-quantity" value="1" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3" placeholder="Cantidad">
+    <input type="text" id="buyer-name" placeholder="Nombre" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3">
     <select id="payment-method" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3"></select>
-    <input type="text" id="payment-reference" placeholder="Referencia de pago" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3">
+    <input type="text" id="payment-reference" placeholder="Referencia" class="w-full p-3 bg-slate-100 dark:bg-darkBg rounded-xl mb-3">
     <button id="btn-comprar" class="w-full py-3 explosive-btn text-white rounded-xl font-bold">Confirmar Compra</button>
   </div>
 </section>
@@ -74,7 +76,6 @@
     { id: 'rock', title: "Rock en Vivo", img: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&w=600&q=80", price: 30, pays: ["Binance: ID-ROCK", "Efectivo"] }
   ];
 
-  // 2. RENDERIZADO ORIGINAL
   const container = document.getElementById('events');
   events.forEach(ev => {
     container.innerHTML += `
@@ -94,67 +95,62 @@
     document.getElementById('purchase-modal').classList.remove('hidden');
   }
 
-  // 3. COMPRA UNIFICADA (QR ÚNICO)
+  // 2. COMPRA UNIFICADA (QR ÚNICO)
   document.getElementById('btn-comprar').addEventListener('click', () => {
     const evTitle = document.getElementById('purchase-event-title').innerText;
     const ev = events.find(e => e.title === evTitle);
-    const qty = parseInt(document.getElementById('ticket-quantity').value);
-    
     const orden = {
       id: 'TK-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
       eventTitle: evTitle,
-      name: document.getElementById('buyer-name').value,
-      qty: qty,
-      total: qty * ev.price,
+      qty: parseInt(document.getElementById('ticket-quantity').value),
+      total: parseInt(document.getElementById('ticket-quantity').value) * ev.price,
       status: 'PENDIENTE'
     };
-    
     let orders = JSON.parse(localStorage.getItem('ticko_orders') || '[]');
     orders.push(orden);
     localStorage.setItem('ticko_orders', JSON.stringify(orders));
     document.getElementById('purchase-modal').classList.add('hidden');
-    alert('Orden creada exitosamente. Código: ' + orden.id);
+    alert('Orden Creada: ' + orden.id);
   });
 
-  // CONSULTA DE TICKET (UNIFICA EL QR POR ORDEN)
   document.getElementById('btn-search-ticket').addEventListener('click', () => {
     const id = document.getElementById('search-ticket-id').value.toUpperCase();
     const orders = JSON.parse(localStorage.getItem('ticko_orders') || '[]');
-    const order = orders.find(o => o.id === id);
+    const o = orders.find(x => x.id === id);
     const box = document.getElementById('search-result-box');
     box.classList.remove('hidden');
-    
-    if(!order) { box.innerHTML = "❌ No encontrada"; return; }
-    if(order.status === 'PENDIENTE') { box.innerHTML = "⏳ En Auditoría"; return; }
-
-    box.innerHTML = `<p class="font-bold">✅ ${order.eventTitle}</p><p>Tickets: ${order.qty}</p><canvas id="qr-canvas"></canvas>`;
-    QRCode.toCanvas(document.getElementById('qr-canvas'), JSON.stringify(order), { width: 120 });
+    if(!o) box.innerHTML = "❌ No encontrado";
+    else if(o.status === 'PENDIENTE') box.innerHTML = "⏳ En Auditoría";
+    else {
+      box.innerHTML = `<p class="font-bold">✅ Aprobado</p><canvas id="qr-canvas"></canvas>`;
+      QRCode.toCanvas(document.getElementById('qr-canvas'), JSON.stringify(o), {width: 120});
+    }
   });
 
-  // 4. SEGURIDAD ADMIN (admin123) Y REPORTE FINANCIERO
+  // 3 y 4. ADMIN CON CLAVE Y REPORTE FINANCIERO
   document.getElementById('admin-panel-btn').addEventListener('click', () => {
-    if(prompt("Clave de acceso:") === "admin123") {
+    if(prompt("Clave:") === "admin123") {
       document.getElementById('admin-dashboard').classList.toggle('hidden');
       updateAdmin();
-    } else { alert("Acceso Denegado"); }
+    } else alert("Error");
   });
 
   function updateAdmin() {
     const orders = JSON.parse(localStorage.getItem('ticko_orders') || '[]');
     document.getElementById('admin-table-rows').innerHTML = orders.map(o => `
-      <tr class="border-b"><td>${o.id}</td><td>${o.qty} pases</td><td>${o.status}</td>
-      <td><button onclick="aprobar('${o.id}')" class="text-green-500 font-bold">Aprobar</button></td></tr>`).join('');
+      <tr class="border-b"><td>${o.id}</td><td>${o.status}</td>
+      <td><button onclick="ap('${o.id}')" class="text-green-500 font-bold">Aprobar</button></td></tr>`).join('');
     
     document.getElementById('reporte-body').innerHTML = events.map(ev => {
       const sold = orders.filter(o => o.eventTitle === ev.title && o.status === 'APROBADO');
-      return `<div class="p-2 bg-slate-800 rounded text-xs text-white">${ev.title}: ${sold.reduce((a,b)=>a+b.qty,0)} pases | $${sold.reduce((a,b)=>a+b.total,0)}</div>`;
+      return `<div class="p-2 bg-slate-800 rounded text-white">${ev.title}: ${sold.length} entradas | <strong>$${sold.reduce((a,b)=>a+b.total,0)}</strong></div>`;
     }).join('');
   }
 
-  function aprobar(id) {
-    let orders = JSON.parse(localStorage.getItem('ticko_orders'));
-    orders.find(o => o.id === id).status = 'APROBADO';
-    localStorage.setItem('ticko_orders', JSON.stringify(orders));
+  function ap(id) {
+    let o = JSON.parse(localStorage.getItem('ticko_orders'));
+    o.find(x => x.id === id).status = 'APROBADO';
+    localStorage.setItem('ticko_orders', JSON.stringify(o));
     updateAdmin();
   }
 </script>
