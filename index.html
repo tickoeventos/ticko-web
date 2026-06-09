@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TICKO | Boletería Profesional con QR</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
   tailwind.config = {
     darkMode: 'class',
@@ -16,8 +16,7 @@
           darkCard: '#1e293b',
         }
       }
-    }
-  }
+     }
 </script>
 <style>
   body {
@@ -45,14 +44,13 @@
     transform-style: preserve-3d;
     perspective: 1000px;
   }
-  .event-card:hover {
-    transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
+  .event-card:hover    transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
     box-shadow: 0 20px 40px rgba(236, 72, 153, 0.15);
   }
   #events, .admin-table-container {
     scrollbar-width: thin;
   }
-  #events::-webkit-scrollbar, .admin-table-container::-webkit-scrollbar {
+  #events::--scrollbar, .admin-table-container::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
@@ -61,55 +59,52 @@
     border-radius: 10px;
   }
 </style>
-</head>
-<body class="bg-slate-50 text-slate-800 dark:bg-darkBg dark:text-slate-100 min-h-screen flex flex-col">
+</head<body class="bg-slate-50 text-slate800 dark:bg-darkBg dark:text-slate-100 min-h-screen flex flex-col">
 
-<header class="w-full bg-white/80 dark:bg-darkCard/80 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300">
+<header class="w-full bg-white/80 dark:bg-darkCard/80 backdrop-bl-md shadow-lg sticky top-0 z-50 transition-colors duration-300">
   <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
     <h1 class="font-black text-3xl tracking-tighter text-transparent bg-clip-text explosive-gradient cursor-pointer" onclick="window.location.reload()">TICKO</h1>
     <nav class="flex items-center space-x-6 font-bold text-sm md:text-base">
       <a href="#events-section" class="hover:text-pink-500 transition-colors">Eventos</a>
       <a href="#check-ticket-section" class="text-pink-500 hover:text-pink-400 transition-colors">🔍 Mi Ticket</a>
-      <a href="#organizer-section" class="hover:text-pink-500 transition-colors hidden sm:inline">Vender</a>
+      <a href="#organizer-section class="hover:text-pink-500 transition-col hidden sm:inline">Vender</a>
       <button id="admin-panel-btn" class="text-purple-500 hover:text-purple-400 flex items-center gap-1 bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20 text-xs md:text-sm">
         🔑 Panel Admin
       </button>
       
       <button id="theme-toggle" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 text-xl transition-all active:scale-95">
         <span id="theme-icon">🌙</span>
-      </button>
-    </nav>
+      </button    </nav>
   </div>
 </header>
 
-<main id="main-storefront" class="flex-grow max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row gap-8">
+<main id="main-storefront" class="flex-grow max-w-7xl w-full mx-auto p-6 flex flex-col lg:flex-row-8">
 
   <section id="events-section" class="lg:w-2/3">
     <div class="flex items-center space-x-3 mb-6">
-      <span class="w-3 h-8 explosive-gradient rounded-full"></span>
+      <span class="w-3 h-8 explosive-gradient rounded-fullspan>
       <h2 class="text-4xl font-black tracking-tight">Próximos Eventos Destacados</h2>
     </div>
-    <div id="events" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[750px] overflow-y-auto pr-2">
+    <div id="events" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[750px]-y-auto pr-2">
       </div>
   </section>
 
   <aside class="lg:w-1/3 space-y-6">
-    <div id="check-ticket-section" class="bg-gradient-to-br from-slate-900 to-purple-950 text-white rounded-2xl shadow-xl p-6 border border-purple-500/20 sticky top-24">
+    <div id="check-ticket" class="bg-gradient-to-br from-slate-900 to-purple-950 text-white rounded-2xl shadow-xl p-6 border border-purple-500/20 sticky top-24">
       <h3 class="text-xl font-black mb-2 flex items-center gap-2">🔍 Consultar mi Estatus</h3>
-      <p class="text-xs text-purple-200 mb-4">¿Ya reportaste tu pago? Ingresa tu código de orden para verificar si tu entrada fue liberada y ver tu QR.</p>
+      <p class="text-xs text-purple- mb-4">¿Ya reportaste tu pago? Ingresa tu código de orden para verificar si tu entrada fue liberada y ver tu QR.</p>
       
       <div class="space-y-3">
         <input type="text" id="search-ticket-id" placeholder="Ej: TK-R4B7A" class="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-center text-lg font-mono font-bold placeholder:text-slate-400 focus:ring-2 focus:ring-pink-500 outline-none uppercase" />
-        <button id="btn-search-ticket" class="w-full font-bold py-3 rounded-xl explosive-btn text-sm shadow">Buscar mi Entrada</button>
+        < id="btn-search-ticket" class="w-full font-bold py-3 rounded-xl explosive-btn text-sm shadow">Buscar mi</button>
       </div>
 
-      <div id="search-result-box" class="hidden mt-4 p-4 rounded-xl border bg-white/5 space-y-3 text-center">
-        </div>
+      <div id="search-result-box" class="hidden mt-4 p-4 rounded-xl border bg-white/5 space-y-3 text-center"></div>
     </div>
 
     <div class="bg-white dark:bg-darkCard rounded-2xl shadow-xl p-6 border border-slate-100 dark:border-slate-800">
       <h3 class="text-2xl font-extrabold mb-3 text-transparent bg-clip-text explosive-gradient">¿Eres productor?</h3>
-      <p class="text-slate-600 dark:text-slate-400 mb-4 font-medium text-sm">Automatiza tus accesos y genera reportes transparentes en tiempo real.</p>
+      <p class="text-s-600 dark:text-s-400 mb-4 font-medium text-sm">Automatiza tus accesos y genera reportes transparent en tiempo real.</p>
       <a href="#organizer-section" class="block text-center text-white font-bold py-3 rounded-xl explosive-btn shadow-md text-sm">Comenzar a Vender</a>
     </div>
   </aside>
@@ -119,7 +114,7 @@
   <div class="bg-white dark:bg-darkCard rounded-3xl p-8 lg:p-12 shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row gap-8 items-center">
     <div class="lg:w-1/2">
       <span class="text-xs font-bold tracking-widest text-pink-500 uppercase px-3 py-1 bg-pink-100 dark:bg-pink-950/50 rounded-full">Alianzas Comerciales</span>
-      <h2 class="text-4xl lg:text-5xl font-black tracking-tight mt-4 mb-4">Registra tu cuenta</h2>
+      <h2 class="text-4xl lg:text-5xl font-black tracking-tight mt4 mb-4">Registra tu cuenta</h2>
       <p class="text-slate-600 dark:text-slate-400 text-lg mb-4">Gestiona tu boletería con total libertad y seguridad.</p>
       <div class="p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900 rounded-xl">
         <p class="text-purple-700 dark:text-purple-300 font-bold">✨ Comisión de solo el 5% por entrada vendida.</p>
@@ -127,10 +122,10 @@
     </div>
     
     <div class="lg:w-1/2 w-full">
-      <form id="organizer-form" class="space-y-4 bg-slate-50 dark:bg-darkBg/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+      <form idorganizer-form" class="space-y-4 bg-slate-50 dark:bg-darkBg/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-400">Nombre del Organizador</label>
-          <input type="text" required placeholder="Ej. Producciones Pro Eventos" class="w-full p-3 bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none" />
+ <input type="text" required placeholder="Ej. Producciones Pro Eventos" class="w-full p-3 bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple- outline-none" />
         </div>
         <button type="submit" class="w-full text-white font-bold py-3.5 rounded-xl explosive-btn shadow-md mt-2">Enviar Solicitud</button>
       </form>
@@ -145,15 +140,15 @@
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow">
+    <div class="bg-white dark:bg-darkCard p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow">
       <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto Total Recaudado</p>
       <p id="kpi-money" class="text-3xl font-black text-green-500 mt-1">$0.00 USD</p>
     </div>
     <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow">
-      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Órdenes por Confirmar</p>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">rdenes por Confirmar</p>
       <p id="kpi-pending" class="text-3xl font-black text-amber-500 mt-1">0</p>
     </div>
-    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow">
+    <div class="bg-white dark-darkCard p-6-2xl border border-slate-100 dark:border-slate800 shadow">
       <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tickets Autorizados</p>
       <p id="kpi-approved" class="text-3xl font-black text-blue-500 mt-1">0</p>
     </div>
@@ -172,11 +167,11 @@
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-slate-50 dark:bg-slate-900 text-xs font-bold tracking-wider text-slate-400 uppercase border-b border-slate-100 dark:border-slate-800">
-            <th class="p-4">ID Orden</th>
-            <th class="p-4">Cliente / Evento</th>
+            <th="p-4">ID Orden</th>
+            <th class="-4">Cliente / Evento</th>
             <th class="p-4">Cant. / Total</th>
             <th class="p-4">Referencia Bancaria</th>
-            <th class="p-4 text-xs">Método de Pago</th>
+            <th class="p-4 text-xs">Método de Pagoth>
             <th class="p-4">Estado</th>
             <th class="p-4 text-right">Acciones de Control</th>
           </tr>
@@ -195,20 +190,20 @@
 
     <form id="purchase-form" class="space-y-6">
       <div id="step-1" class="step">
-        <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Número de Entradas</label>
+        <label class="block text-sm font-bold uppercase tracking-wider mb-2-slate-">Número de Entradas</label>
         <div class="flex items-center space-x-4 bg-slate-100 dark:bg-darkBg p-2 rounded-xl">
-          <!-- Eliminado atributo max para permitir compras ilimitadas -->
+          <!-- Eliminado max para compra ilimitada -->
           <input type="number" id="ticket-quantity" min="1" value="1" class="w-full bg-transparent text-xl font-bold text-center p-2 outline-none" required />
         </div>
       </div>
 
-      <div id="step-2" class="step hidden space-y-4">
+     div id="step-2" class="step hidden-y-4">
         <div>
           <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Nombre Completo</label>
-          <input type="text" id="buyer-name" placeholder="Ej. María Pérez" class="w-full p-3 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" required />
+          <input type="text" id="buyer-name" placeholder="Ej. María Pérez" class="w-full p-3 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring- focus:ring-pink-500 outline-none" required />
         </div>
         <div>
-          <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Correo Electrónico</label>
+ <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate400">Correo Electrónico</label>
           <input type="email" id="buyer-email" placeholder="correo@ejemplo.com" class="w-full p-3 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" required />
         </div>
       </div>
@@ -217,13 +212,13 @@
         <div>
           <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Método de Pago</label>
           <select id="payment-method" class="w-full p-3 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none font-medium" required>
-            <option value="">Selecciona un método</option>
-          </select>
+           option value="">Selecciona un método</option>
+         select>
         </div>
 
         <div id="bank-details-box" class="hidden p-4 rounded-xl border border-pink-500/30 bg-pink-500/5 transition-all text-sm space-y-2">
           <p class="font-bold text-pink-500 mb-1">📋 Datos de Cuenta Autorizados:</p>
-          <div id="bank-info-text" class="font-mono text-xs text-slate-700 dark:text-slate-300 break-all"></div>
+          <div id="bank-info-text" class="fontono text-xs text-slate700 dark:text-slate-300 break-all"></div>
           <button type="button" id="copy-bank-btn" class="mt-2 text-xs font-bold text-white bg-slate-800 dark:bg-slate-700 px-3 py-1.5 rounded-lg hover:bg-pink-600 transition-colors flex items-center gap-1">
             <span>📋</span> <span id="copy-btn-text">Copiar Datos</span>
           </button>
@@ -231,7 +226,7 @@
 
         <div>
           <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Número de Referencia de Pago</label>
-          <input type="text" id="payment-reference" placeholder="Ej. 123abc456" class="w-full p-3 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" required />
+          <input type="text" id="payment-reference" placeholder="Ej. 123abc456" class="w-full p-3 bglate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none" required />
         </div>
         <div>
           <label class="block text-sm font-bold uppercase tracking-wider mb-2 text-slate-400">Adjuntar Comprobante</label>
@@ -240,9 +235,9 @@
       </div>
       
       <div id="step-4" class="step hidden text-center space-y-4">
-        <div class="inline-block p-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-500 font-bold px-4 text-xs uppercase tracking-widest">Espera de Seguridad Activa</div>
-        <h3 class="text-3xl font-black tracking-tight text-slate-800 dark:text-white">Transacción en Auditoría</h3>
-        <p class="text-sm font-medium border border-slate-200 dark:border-slate-700 p-4 rounded-xl bg-slate-50 dark:bg-darkBg leading-relaxed text-left" id="ticket-info"></p>
+        <div class="inline-block p-2 bg-amber-500/10 border border-amber-500/30-full text-amber-500 font-bold px-4 text-xs uppercase tracking-widest">Espera de Seguridad Activa</div>
+        <3 class="text-3xl font-black tracking-tight text-slate-800 dark:text-white">Transacción en Auditoría</h3>
+        <p class="text-sm font-medium border border-slate-200 dark:border-slate-700 p-4 rounded-xl bg-slate-50 dark:bg-darkBg leadingaxed text-left" id="ticket-info"></p>
         <p class="text-xs text-slate-400">El departamento contable validará los fondos en un tiempo estimado de 10 a 20 minutos. Copia tu código de orden para consultarlo en el bloque lateral.</p>  
       </div>
 
@@ -256,15 +251,15 @@
 
 <a href="https://wa.me/584124723147?text=Hola,%20tengo%20una%20duda%20con%20la%20compra%20de%20mis%20tickets%20en%20Ticko" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 bg-[#25d366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center group">
   <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.017 14.074.99 11.487.99c-5.462 0-9.91 4.444-9.913 9.875-.001 1.718.452 3.4 1.311 4.888l-.993 3.624 3.71-.973zm13.066-7.387c-.348-.174-2.057-1.014-2.377-1.13-.319-.116-.552-.174-.784.174-.233.348-.899 1.13-1.102 1.362-.204.233-.407.261-.755.087-.348-.174-1.472-.543-2.804-1.727-1.037-.924-1.737-2.064-1.941-2.412-.204-.348-.022-.536.152-.71.157-.156.348-.406.522-.609.174-.203.232-.348.348-.58.116-.232.058-.435-.029-.609-.087-.174-.784-1.884-1.074-2.58-.282-.678-.57-.586-.784-.597-.203-.011-.435-.014-.667-.014-.232 0-.609.087-.927.435-.319.348-1.217 1.189-1.217 2.9 0 1.711 1.246 3.364 1.419 3.596.174.232 2.453 3.743 5.939 5.25.829.358 1.476.573 1.981.733.833.265 1.59.227 2.19.138.667-.1 2.057-.841 2.348-1.652.29-.812.29-1.508.203-1.652-.088-.144-.319-.232-.667-.406z"/>
+    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11953 11.997-2.005-.001-3.973-.502-5.713-1.4570 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.017 14.074.99 11.487.99c-5.462 0-9.91 4.444-9.913 9.875-.001 1.718.452 3.4 1.311 4.888l-.993 3.624 3.71-.973zm13.066-7.387c-.348-.174-2.057-1.014-2.377-1.13-.319-.116-.552-.174-..174-.233.348-.899 1.13-1.102 1.362-.204.233-.407.261-.755.087-.348-.174-1.472-.543-2.804-1.727-1.037-.924-1.737-2.064-1.941-2.412-.204-.348-.022-.536.152-.71.157-.156.348-.406.522-.609.174-.203.232-.348.348-.58.116-.232.058-.435-.029-.609-.087-.174-.784-1.884-1.074-2.58-.282-.678-.57-.586-.784-.597-.203-.011-.435-.014-.667-.014-.232 0-.609.087-.927.435-..348-1.217 1.189-1.217 2.9 0 1.711 1.246 3.364 1.419 3.596.174.232 2.453 3.743 5.939 .25.829.358 1.476.573 1.981.733.833.265 1.59.227 2.19.138.667-.1 2.057-.841 2.348-1.652.29-.812.29-1.508.203-1.652-.088-.144-.319-.232-.667-.406z"/>
   </svg>
 </a>
 
 <footer id="contact" class="bg-white dark:bg-darkCard py-8 mt-20 text-center max-w-7xl w-full mx-auto rounded-t-3xl border-t border-slate-100 dark:border-slate-800 space-y-4">
-  <p class="font-medium text-slate-600 dark:text-slate-400">
+  <p class="font-medium text-slate- dark:text-slate-400">
     Contacto: <a href="mailto:soporte@ticko.com" class="text-pink-500 font-bold hover:underline">soporte@ticko.com</a> | WhatsApp: <a href="https://wa.me/584124723147" target="_blank" class="text-pink-500 font-bold hover:underline">+58 412 4723147</a>
   </p>
-  <p class="text-xs text-slate-400 font-medium">© 2026 TICKO - Todos los derechos reservados.</p>
+  <p class="text-xs text-slate-400 font-medium">© 2026ICKO - Todos los derechos reservados.</p>
 </footer>
 
 <script>
@@ -272,14 +267,14 @@
   const themeToggle = document.getElementById('theme-toggle');
   const themeIcon = document.getElementById('theme-icon');
   if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
+    document.documentElement.classList('dark');
     themeIcon.textContent = '☀️';
   } else {
     document.documentElement.classList.remove('dark');
     themeIcon.textContent = '🌙';
   }
   themeToggle.addEventListener('click', () => {
-    if (document.documentElement.classList.contains('dark')) {
+    if (document.documentElement.class.contains('dark')) {
       document.documentElement.classList.remove('dark');
       localStorage.theme = 'light';
       themeIcon.textContent = '🌙';
@@ -290,24 +285,26 @@
     }
   });
 
-  // BASE DE DATOS DE EVENTOS CON MÉTODOS DE PAGO POR EVENTO
+  // MÉTODOS DE PAGO GLOBALES
+  const globalPaymentMethods = ['transferencia', 'p_movil', 'binance', 'zelle', 'paypal', 'efectivo'];
+
+  // BASE DE DATOS DE EVENTOS CON MÉTODOS DE PAGO
   const events = [
-    { id: 'karaoke', title: "Jueves de Karaoke (Steph Music)", img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80", date: "15 de Julio - 8PM", venue: "Teatro Central, Caracas", priceUSD: 15, desc: "Disfruta de una noche inolvidable cantando tus canciones favoritas.", paymentMethods: ['transferencia', 'pago_movil'] },
-    { id: 'rock', title: "Rock en Vivo - La Banda Sónica", img: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&w=600&q=80", date: "20 de Julio - 9PM", venue: "Estadio Metropolitano, Caracas", priceUSD: 30, desc: "Vive la energía del rock con una de las bandas más emblemáticas.", paymentMethods: ['binance', 'zelle', 'paypal'] },
-    { id: 'teatro', title: "Obra de Teatro 'Sueños Despiertos'", img: "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=600&q=80", date: "25 de Julio - 7PM", venue: "Teatro National, Caracas", priceUSD: 20, desc: "Una producción conmovedora y llena de talento local.", paymentMethods: ['efectivo', 'pago_movil', 'transferencia'] },
+    { id: 'karaoke', title: "Jueves de Karaoke (Steph Music)", img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80", date: "15 de Julio - 8PM", venue: "Teatro Central, Caracas", priceUSD:15, desc: "Disfruta de una noche inolvidable cantando tus canciones favoritas.", paymentMethods: ['transferencia', 'pago_movil', 'paypal', 'efectivo'] },
+    { id: 'rock', title: "Rock en Vivo - La Banda Sónica", img: "https://images.unsplash.com/photo-1498038432885-c6ff1b912ee?auto=format&fit=crop&w=600&q=80", date: "20 de Julio - 9PM venue: "Estadio Metropolitano, Caracas", priceUSD: 30, desc: "Vive la energía del rock con una de las bandas más emblemáticas.", paymentMethods: ['binance', 'zelle', 'paypal', 'efectivo'] },
+    { id: 'teatro', title: "Obra de Teatro 'Sueños Despiertos'", img: "https://images.unsplash.com/photo-7676184212-d03ab07a01bf?auto=format&fit=crop&w=600&q=80", date: "25 de Julio - 7PM", venue: "Teatro National, Caracas", priceUSD: 20, desc: "Una producción conmovedora y llena de talento local.", paymentMethods: ['efectivo', 'pago_movil', 'transferencia', 'paypal'] },
   ];
 
   const bankDetails = {
     pago_movil: "Pago Móvil:\nBanco: 0108\nTeléfono: 0412-4723147\nCédula: CI 25.551.326",
     transferencia: "Transferencia Bancaria:\nBanco Provincial\nCuenta: 0108-0048-0801-0024-7498\nTitular: Ivor Chirinos",
-    binance: "Binance USDT Pay ID:\nivorchirinos@gmail.com",
+    binance: "BinanceDT Pay ID:\nivorchirinos@gmail.com",
     zelle: "Zelle Transfer:\nivorchirinos@gmail.com",
     paypal: "PayPal Account:\nivorchirinos@gmail.com\nNota: Sumar comisión",
-    efectivo: "Efectivo en Taquilla:\nPresentarse 1 hora antes."
+   : "Efectivo en Taquilla:\nPresentarse 1 hora."
   };
 
-  const paymentMethodNames = {
-    transferencia: 'Transferencia Bancaria',
+  const paymentMethodNames =    transferencia: 'Transferencia Bancaria',
     pago_movil: 'Pago Móvil',
     binance: 'Binance USDT',
     zelle: 'Zelle',
@@ -322,7 +319,7 @@
   const eventsContainer = document.getElementById('events');
   const purchaseModal = document.getElementById('purchase-modal');
   const closeModalBtn = document.getElementById('close-modal');
-  const purchaseEventTitle = document.getElementById('purchase-event-title');
+  const purchaseTitle = document.getElementById('purchase-event-title');
   const purchaseForm = document.getElementById('purchase-form');
   const nextBtn = document.getElementById('next-step');
   const prevBtn = document.getElementById('prev-step');
@@ -337,9 +334,9 @@
   let currentStep = 1;
   let selectedEvent = null;
 
-  // RENDER DE EVENTOS
+  // Render eventos
   events.forEach(ev => {
-    const card = document.createElement('article');
+    const = document.createElement('article');
     card.className = "event-card bg-white dark:bg-darkCard rounded-2xl shadow-md border border-slate-100 dark:border-slate-800/60 overflow-hidden cursor-pointer flex flex-col justify-between";
     card.innerHTML = `
       <div>
@@ -350,14 +347,15 @@
         <div class="p-5 space-y-1">
           <h3 class="text-xl font-black tracking-tight text-slate-800 dark:text-white">${ev.title}</h3>
           <p class="text-xs text-pink-500 font-bold">📅 ${ev.date}</p>
-          <p class="text-xs text-slate-400 font-semibold">📍 ${ev.venue}</p>
+ <p class="text-xs textlate-400 font-semibold">📍 ${ev.venue}</p>
         </div>
       </div>
-      <div class="p-5 pt-0"><button class="w-full text-white font-bold py-3 rounded-xl explosive-btn text-sm" data-eventid="${ev.id}">Adquirir Boletos</button></div>
+      <div class="p-5 pt0"><button class="w-full text-white font-bold py-3 rounded-xl explosive-btn text-sm" data-eventid="${ev.id}">Adquirir Boletosbutton></div>
     `;
     eventsContainer.appendChild(card);
   });
 
+  // Render métodos de pago específicos por evento
   function renderPaymentMethodsForEvent(event) {
     paymentMethodSelect.innerHTML = `<option value="">Selecciona un método</option>`;
     if (event && Array.isArray(event.paymentMethods)) {
@@ -409,7 +407,7 @@
   function validateStep(step) {
     if (step === 1) return document.getElementById('ticket-quantity').value >= 1;
     if (step === 2) return document.getElementById('buyer-name').value.trim().length > 3 && document.getElementById('buyer-email').value.includes('@');
-    if (step === 3) return paymentMethodSelect.value !== '' && document.getElementById('payment-reference').value.trim() !== '';
+    if (step === 3) return paymentMethodSelect !== '' && document.getElementById('payment-reference').value.trim() !== '';
     return true;
   }
 
@@ -429,14 +427,14 @@
         procesarSolicitudDePago();
       }
       showStep(currentStep + 1);
-    }
+ }
   });
 
   prevBtn.addEventListener('click', () => {
     if (currentStep > 1) showStep(currentStep - 1);
   });
 
-  // Generar array con numero único para cada ticket adquirido, ej: TK-ID-001, TK-ID-002...
+  // Genera números únicos para tickets
   function generarNumerosTickets(ordenId, cantidad) {
     const numeros = [];
     for (let i = 1; i <= cantidad; i++) {
@@ -445,48 +443,44 @@
     return numeros;
   }
 
-  // Enviar correo - solo prepara mailto con texto (backend recomendado para adjuntos QR)
-  function enviarEmailConOrden(email, orden, numerosTickets, qrDataUrl) {
-    // Construir texto resumen
+  // Ejemplo para envío de mail (preparación mailto sin adjunto real, ideal backend)
+  function enviarEmailConOrden(email, orden, numerosTickets) {
     let texto = `Hola ${orden.name},%0D%0AGracias por tu compra en TICKO.%0D%0A%0D%0A` +
       `Código de Orden: ${orden.ordenId}%0D%0AEvento: ${orden.eventTitle}%0D%0ACantidad de boletos: ${orden.qty}%0D%0ANúmeros de Tickets:%0D%0A`;
-
-    numerosTickets.forEach(n => {
-      texto += `- ${n}%0D%0A`;
-    });
-
-    texto += `%0D%0AEstado: ${orden.status}.%0D%0A` +
-      `Por favor guarda este correo como respaldo junto con tu código QR adjunto.%0D%0A%0D%0A` +
-      `Saludos, TICKO`;
-
-    // mailto sin adjunto por limitación - ideal backend para adjuntar imagen QR
-    const mailtoLink = `mailto:${email}?subject=Orden ${orden.ordenId} - TICKO&body=${texto}`;
+    numerosTickets.forEach(n => texto += `- ${n}%0D%0A`);
+    texto += `%0D%0AEstado: ${orden.status}.%0D%0AMétodo de Pago: ${paymentMethodNames[orden.metodo]}%0D%0A`;
+    texto += `Por favor conserva este correo junto con tu código QR como respaldo.%0D%0ASaludos, TICKO.`;
+    const mailtoLink = `mailto:${email}?subject=Orden ${orden.ordenId} - TICK&body=${texto}`;
     window.open(mailtoLink, '_blank');
   }
 
+  // Procesar compra con estado y QR optimizada para grandes cantidades y estado según método pago
   function procesarSolicitudDePago() {
     const ordenId = 'TK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
     const qty = parseInt(document.getElementById('ticket-quantity').value);
     const name = document.getElementById('buyer-name').value.trim();
-    const email = document.getElementById('buyer-email').value.trim();
+    const = document.getElementById('buyer-email').value.trim();
     const metodo = paymentMethodSelect.value;
     const referencia = document.getElementById('payment-reference').value.trim();
 
-    const totalCost = qty * selectedEvent.priceUSD;
-    // Generar números de tickets para incluir en QR
+    const totalCost = qty selectedEvent.priceUSD;
     const numerosTickets = generarNumerosTickets(ordenId, qty);
+
+    // Estado según método efectivo (reservado) o los demás (pendiente)
+    const estadoInicial = metodo === 'efectivo' ? 'RESERV' : 'PENDIENTE';
 
     ticketInfo.innerHTML = `
       <strong>Código de Orden:</strong> <span class="text-pink-500 font-mono font-bold">${ordenId}</span><br>
       <strong>Cliente:</strong> ${name}<br>
       <strong>Evento:</strong> ${selectedEvent.title}<br>
       <strong>Boleto(s):</strong> ${qty} Pase(s) — Total: $${totalCost} USD<br>
-      <strong>Referencia:</strong> ${referencia}
+      <strong>Referencia:</strong> ${referencia}<br>
+      <strong>Método Pago:</strong> ${paymentMethodNames[metodo]}<br>
+      <strong>Estado:</strong> ${estadoInicial}
     `;
 
     const localOrders = JSON.parse(localStorage.getItem('ticko_orders'));
 
-    // Se guarda la orden con array de tickets y estado PENDIENTE para retención
     const newOrder = {
       ordenId,
       name,
@@ -496,7 +490,7 @@
       totalCost,
       referencia,
       metodo,
-      status: 'PENDIENTE',
+      status: estadoInicial,
       venue: selectedEvent.venue,
       tickets: numerosTickets
     };
@@ -505,28 +499,28 @@
     localStorage.setItem('ticko_orders', JSON.stringify(localOrders));
     updateAdminDashboard();
 
-    // Generar QR único con datos detallados para el respaldo
-    const qrPayload = {
-      id: ordenId,
-      titular: name,
-      pases: qty,
-      evento: selectedEvent.title,
-      tickets: numerosTickets,
-      status: "PENDIENTE"
-    };
+    // QR payload adaptado para evitar saturación si muchos tickets
+    let qrPayload;
+    if (qty > 50) {
+      qrPayload = {
+        ordenId, titular: name, pases: qty, evento: selectedEvent.title,
+        metodo, status: estadoInicial,
+        note: 'Detalle de tickets extenso. Revísalo en tu correo o panel admin.'
+      };
+    } else {
+      qrPayload =        ordenId, titular: name, pases: qty, evento: selectedEvent.title,
+        metodo, status: estadoInicial, tickets: numerosTickets
+      };
+    }
 
-    // Crear canvas temporal para generar DataURL del QR (si se quiere adjuntar en email backend)
-    let qrDataUrl = '';
     QRCode.toDataURL(JSON.stringify(qrPayload), { width: 200, margin: 1 }, (err, url) => {
-      if (!err) {
-        qrDataUrl = url;
-        // Enviar email con orden y QR (actualmente abre mailto sin adjunto, ideal backend)
-        enviarEmailConOrden(email, newOrder, numerosTickets, qrDataUrl);
-      }
+      if (err) console.error(err);
+      // Aquí podrías integrar backend para envío con adjunto QR
+      enviarEmailConOrden(email, newOrder, numeros);
     });
   }
 
-  eventsContainer.addEventListener('click', e => {
+  eventsContainer.addEventListenerclick', e => {
     const btn = e.target.closest('button');
     if (btn && btn.dataset.eventid) {
       selectedEvent = events.find(ev => ev.id === btn.dataset.eventid);
@@ -541,7 +535,7 @@
 
   closeModalBtn.addEventListener('click', () => purchaseModal.classList.add('hidden'));
 
-  const btnSearchTicket = document.getElementById('btn-search-ticket');
+  const btnSearchTicket =.getElementById('btn-search-ticket');
   const searchTicketInput = document.getElementById('search-ticket-id');
   const searchResultBox = document.getElementById('search-result-box');
 
@@ -558,16 +552,17 @@
     searchResultBox.classList.remove('hidden');
     
     if (!foundOrder) {
-      searchResultBox.className = "mt-4 p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-center text-sm space-y-1";
+      searchResultBox.className = "mt-4 p-4 rounded-xl border border-500/30 bg-red-500/10 text-center text-sm space-y-1";
       searchResultBox.innerHTML = `❌ <strong>Código no encontrado</strong><br><span class="text-xs opacity-80">Verifica que lo hayas escrito exactamente igual.</span>`;
       return;
     }
 
-    if (foundOrder.status === 'PENDIENTE') {
+    if (foundOrder.status === 'PENDIENTE' || foundOrder.status === 'RESERVADO') {
+      let estadoTexto = foundOrder.status === 'PENDIENTE' ? 'Por Verificar' : 'Reservado (pago en taquilla)';
       searchResultBox.className = "mt-4 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-center text-sm space-y-2 text-amber-500";
       searchResultBox.innerHTML = `
-        <p class="font-bold">⏳ Estado: Por Verificar</p>
-        <p class="text-xs text-slate-800 dark:text-slate-300">Hola <strong>${foundOrder.name}</strong>, estamos auditando la referencia de tu pago móvil o transferencia. Regresa en unos minutos.</p>
+        <p class="font-bold">⏳ Estado: ${estadoTexto}</p>
+        <p class="text-xs text-slate-800 dark:text-slate-300">Hola <strong>${foundOrder.name}</strong>, tu compra está ${estadoTexto.toLowerCase()}. El método de pago es <strong>${paymentMethodNames[foundOrder.metodo]}</strong>. Regresa en unos minutos o hasta el evento.</p>
       `;
     } else if (foundOrder.status === 'APROBADO') {
       searchResultBox.className = "mt-4 p-5 rounded-xl border border-green-500/40 bg-green-500/10 text-center space-y-4 text-green-600 dark:text-green-400";
@@ -576,26 +571,25 @@
           <p class="text-lg font-black tracking-tight">✅ ¡Boleto Autorizado!</p>
           <p class="text-xs text-slate-700 dark:text-slate-300"><strong>Evento:</strong> ${foundOrder.eventTitle}</p>
           <p class="text-xs text-slate-700 dark:text-slate-300"><strong>Cantidad:</strong> ${foundOrder.qty} Entradas • <strong>Titular:</strong> ${foundOrder.name}</p>
+          <p class="text-xs text-slate-700 dark:text-slate-300"><strong>Método de Pago:</strong> ${paymentMethodNames[foundOrder.metodo]}</p>
         </div>
         <div class="bg-white p-3 rounded-xl inline-block mx-auto shadow-md">
           <canvas id="client-qr-canvas"></canvas>
         </div>
         <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">📸 ¡Tómale captura de pantalla a este código QR! Es tu pase oficial para el acceso.</p>
       `;
-
-      // QR único con lista de tickets aprobados
       const qrPayload = {
         id: foundOrder.ordenId,
         titular: foundOrder.name,
         pases: foundOrder.qty,
         evento: foundOrder.eventTitle,
+        metodo: foundOrder.metodo,
         tickets: foundOrder.tickets,
         status: "VALIDO"
       };
-
       setTimeout(() => {
         const clientCanvas = document.getElementById('client-qr-canvas');
-        QRCode.toCanvas(clientCanvas, JSON.stringify(qrPayload), { width: 150, margin: 1 }, (err) => {
+        QRCode.toCanvas(client, JSON.stringify(qrPayload), { width: 150, margin: 1 }, (err) => {
           if (err) console.error(err);
         });
       }, 50);
@@ -623,7 +617,7 @@
 
   closeAdminBtn.addEventListener('click', () => {
     adminDashboard.classList.add('hidden');
-    mainStorefront.classList.remove('hidden');
+    mainStorefront.classList.removehidden');
     organizerSection.classList.remove('hidden');
   });
 
@@ -634,6 +628,7 @@
 
     let totalMoney = 0;
     let pendingCount = 0;
+    let reservedCount = 0;
     let approvedCount = 0;
     const revenueByEvent = {};
 
@@ -644,25 +639,30 @@
         revenueByEvent[order.eventTitle] += order.totalCost;
       }
       if (order.status === 'PENDIENTE') pendingCount++;
+      if (order.status === 'RESERVADO') reservedCount++;
       if (order.status === 'APROBADO') approvedCount++;
 
       const tr = document.createElement('tr');
       tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30";
 
-      const statusBadge = order.status === 'PENDIENTE' 
-        ? `<span class="px-2 py-1 bg-amber-500/10 text-amber-500 rounded-lg text-xs font-bold">Por Verificar</span>`
-        : `<span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-lg text-xs font-bold">Aprobado</span>`;
-
-      const actionButtons = order.status === 'PENDIENTE'
-        ? `<button onclick="approveOrder(${index})" class="bg-green-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-green-600 transition-colors">Aprobar Fondos</button>`
-        : `<span class="text-xs text-slate-400 font-semibold">Listo</span>`;
+      let statusBadge, actionButtons;
+      if (order.status === 'PENDIENTE') {
+        statusBadge = `<span class="px-2 py-1 bg-amber-500/10 text-amber-500 rounded-lg text-xs font-bold">Por Verificar</span>`;
+        actionButtons = `<button onclick="approveOrder(${index})" class="bg-green-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-green-600 transition-colors">Aprobar Fondos</button>`;
+      } else if (order.status === 'RESERVADO') {
+        statusBadge = `<span class="px-2 py-1 bg-yellow-400/20 text-yellow-600-lg text-xs font-bold">Reservado - Pago en Taquilla</span>`;
+        actionButtons = `<button onclick="approveOrder(${index})" class="bg-green-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors">Confirmar Pago</button>`;
+      } else {
+        statusBadge = `<span class="px-2 py-1 bg-green-500/10 text-green-500 rounded-lg text-xs font-bold">Aprobado</span>`;
+        actionButtons = `<span class="text-xs text-slate-400 font-semibold">Listo</span>`;
+      }
 
       tr.innerHTML = `
         <td class="p-4 font-mono font-bold text-pink-500">${order.ordenId}</td>
         <td class="p-4"><strong>${order.name}</strong><br><span class="text-xs text-slate-400">${order.eventTitle}</span></td>
         <td class="p-4"><strong>${order.qty} Pases</strong><br><span class="text-xs text-slate-400">$${order.totalCost} USD</span></td>
         <td class="p-4 font-mono text-xs">${order.referencia}<br><span class="text-[10px] uppercase text-slate-400">${order.metodo}</span></td>
-        <td class="p-4 text-xs font-semibold text-center">${paymentMethodNames[order.metodo] || order.metodo}</td>
+        < class="p-4 text-xs font-semibold text-center">${paymentMethodNames[order.metodo] || order.metodo}</td>
         <td class="p-4">${statusBadge}</td>
         <td class="p-4 text-right">${actionButtons}</td>
       `;
@@ -680,14 +680,14 @@
 
     document.getElementById('kpi-money').innerText = `$${totalMoney.toFixed(2)} USD`;
     document.getElementById('kpi-pending').innerText = pendingCount;
-    document.getElementById('kpi-approved').innerText = approvedCount;
+    // Se muestra contador reservas aparte en KPI
+    document.getElementById('kpi-approved').innerText = approvedCount + (reservedCount > 0 ? ` (+${reservedCount} reservas)` : '');
   }
 
   function approveOrder(index) {
     const orders = JSON.parse(localStorage.getItem('ticko_orders'));
     orders[index].status = 'APROBADO';
     localStorage.setItem('ticko_orders', JSON.stringify(orders));
-    
     alert(`⚡ Pago confirmado. La orden ${orders[index].ordenId} ha sido liberada. El cliente ya puede ver su QR ingresando su código en el buscador.`);
     updateAdminDashboard();
   }
