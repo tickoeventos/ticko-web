@@ -196,15 +196,17 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js';
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const firebaseConfig = {
-      apiKey: 'PEGAR_AQUI_TU_API_KEY',
-      authDomain: 'PEGAR_AQUI_TU_AUTH_DOMAIN',
-      projectId: 'PEGAR_AQUI_TU_PROJECT_ID',
-      storageBucket: 'PEGAR_AQUI_TU_STORAGE_BUCKET',
-      messagingSenderId: 'PEGAR_AQUI_TU_MESSAGING_SENDER_ID',
-      appId: 'PEGAR_AQUI_TU_APP_ID'
+      apiKey: 'AIzaSyAIFaXMf_nKkiARE14ZsxAkf4wB80A1OWs',
+      authDomain: 'tickoeventos-dca17.firebaseapp.com',
+      projectId: 'tickoeventos-dca17',
+      storageBucket: 'tickoeventos-dca17.firebasestorage.app',
+      messagingSenderId: '778626124823',
+      appId: '1:778626124823:web:606380f91c23f6a258e052',
+      measurementId: 'G-72J2L5VBCD'
     };
 
     const ADMIN_USERS = {
@@ -213,7 +215,7 @@
     };
 
     const FALLBACK_RATE = 578;
-    let bcvRate = FALLBACK_RATE, db = null, firebaseReady = false, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
+    let bcvRate = FALLBACK_RATE, db = null, analytics = null, firebaseReady = false, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
     const $ = id => document.getElementById(id);
     const money = n => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const safeText = v => String(v ?? '').replace(/[<>&"']/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#039;'}[s]));
@@ -225,7 +227,19 @@
       { id: 'newyork', title: 'Vuelve la New York', short: 'Vuelve la New York', desc: 'Evento especial con entrada digital, conciliación por evento y QR unificado.', date: '4 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant', priceUSD: 5, img: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } }
     ];
 
-    try { if (isFirebaseConfigured()) { const app = initializeApp(firebaseConfig); db = getFirestore(app); firebaseReady = true; } } catch (err) { console.warn('Firebase no inicializó. Usando modo local.', err); }
+    try {
+      if (isFirebaseConfigured()) {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        firebaseReady = true;
+
+        isAnalyticsSupported()
+          .then((supported) => { if (supported) analytics = getAnalytics(app); })
+          .catch((err) => console.warn('Analytics no inicializó.', err));
+      }
+    } catch (err) {
+      console.warn('Firebase no inicializó. Usando modo local.', err);
+    }
     function localOrders(){ return JSON.parse(localStorage.getItem('ticko_orders_v3') || '[]'); }
     function saveLocalOrders(orders){ localStorage.setItem('ticko_orders_v3', JSON.stringify(orders)); }
     function localScans(){ return JSON.parse(localStorage.getItem('ticko_scans_v3') || '[]'); }
