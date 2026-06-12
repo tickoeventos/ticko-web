@@ -40,6 +40,525 @@
     #qr-reader video { border-radius: 18px; }
     .qr-shell { background: #fff; padding: 12px; border-radius: 18px; display: inline-flex; }
     .status-pill { display:inline-flex; align-items:center; gap:.4rem; border-radius:999px; padding:.35rem .7rem; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    html:not(.dark) body.premium-bg {
+      background: radial-gradient(circle at 10% 10%, rgba(240,50,210,.12), transparent 26%), radial-gradient(circle at 90% 20%, rgba(124,58,237,.14), transparent 30%), linear-gradient(140deg, #fff7fd 0%, #f8fafc 45%, #eef2ff 100%);
+      color: #0f172a;
+    }
+    html:not(.dark) .glass {
+      background: rgba(255, 255, 255, .78);
+      border-color: rgba(124,58,237,.18);
+      box-shadow: 0 18px 55px rgba(124,58,237,.12);
+    }
+    html:not(.dark) .hero-3d,
+    html:not(.dark) .event-card {
+      background: rgba(255, 255, 255, .78);
+      border-color: rgba(124,58,237,.16);
+    }
+    html:not(.dark) .ticket-mini {
+      background: linear-gradient(145deg, rgba(240,50,210,.16), rgba(255,255,255,.94) 45%, rgba(245,243,255,.96));
+    }
+    html:not(.dark) [class*="bg-black/45"] {
+      background-color: rgba(255,255,255,.55) !important;
+    }
+    html:not(.dark) [class*="text-white"],
+    html:not(.dark) [class*="text-slate-"] {
+      color: #1e293b !important;
+    }
+    html:not(.dark) .text-pink-200,
+    html:not(.dark) .text-pink-300 {
+      color: #be185d !important;
+    }
+    html:not(.dark) .text-gradient {
+      background: linear-gradient(135deg, #c026d3, #6d28d9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent !important;
+    }
+    @media (max-width: 640px) { .admin-table { min-width: 780px; } .mobile-title { font-size: 2rem; } }
+  </style>
+</head>
+<body class="premium-bg text-white min-h-screen">
+  <header class="sticky top-0 z-40 border-b border-white/10 glass">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+      <button id="logoBtn" class="text-3xl font-black tracking-tight text-gradient select-none" title="Toca 5 veces para administración">TICKO</button>
+      <nav class="flex items-center gap-2 sm:gap-4 text-sm font-bold">
+        <a href="#events-list" class="hidden sm:inline hover:text-pink-300">Próximos</a>
+        <a href="#ticket-status" class="hover:text-pink-300">Mi boleto</a>
+        <button id="themeToggle" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 hover:bg-white/15">☀️</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="storefront">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-8 grid lg:grid-cols-[1.08fr_.92fr] gap-6 items-stretch">
+      <article id="premiumCard" class="hero-3d relative overflow-hidden rounded-[2rem] border border-fuchsia-500/35 bg-black/45 shadow-neon p-6 sm:p-8 min-h-[560px]">
+        <div class="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1300&q=80')] bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-[#070b1f]/70 via-[#050816]/92 to-black/95"></div>
+        <div class="relative z-10 h-full flex flex-col">
+          <div class="flex flex-wrap gap-2 mb-8">
+            <span class="px-3 py-1 rounded-full text-[11px] font-black tracking-widest bg-purple-700/60 border border-purple-300/20">✨ EN VIVO</span>
+            <span class="px-3 py-1 rounded-full text-[11px] font-black tracking-widest bg-pink-700/60 border border-pink-300/20">🎟️ CONTROL QR PREMIUM</span>
+          </div>
+          <h1 class="mobile-title text-4xl sm:text-5xl font-black leading-tight text-gradient">TICKO PREMIUM CONCILIATION</h1>
+          <p class="mt-5 max-w-2xl text-sm sm:text-base text-slate-200 leading-relaxed">Disfruta de reportes ultra fluidos, sincronización con Firebase/Firestore y emisión automatizada de boletos autorizados protegidos con QR centralizado.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mt-8">
+            <div class="rounded-2xl border border-fuchsia-500/30 bg-black/45 p-4">
+              <p class="text-xs font-black text-pink-300 tracking-widest">⚡ AUTENTICACIÓN INSTANTÁNEA</p>
+              <h3 class="font-black mt-2">Validación Central</h3>
+              <p class="text-xs text-slate-300 mt-1">El QR se libera solo cuando el pago es aprobado por administración.</p>
+            </div>
+            <div class="rounded-2xl border border-fuchsia-500/30 bg-black/45 p-4">
+              <p class="text-xs font-black text-pink-300 tracking-widest">💱 TASA BCV EN TIEMPO REAL</p>
+              <h3 class="font-black mt-2">Banco Central de Venezuela</h3>
+              <p class="text-xs text-slate-300 mt-1"><span id="hero-rate">Cargando...</span> VES / USD</p>
+            </div>
+          </div>
+          <div class="mt-auto pt-10 flex justify-center">
+            <div class="ticket-mini w-full max-w-[340px] rounded-3xl border border-fuchsia-400/45 p-5 shadow-neon">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] px-3 py-1 rounded-lg bg-purple-700/70 font-black tracking-widest">🎟 TICKO VIP PASS</span>
+                <span class="w-9 h-9 rounded-full bg-white/10 grid place-items-center">🌟</span>
+              </div>
+              <div class="mt-14 text-center">
+                <h3 class="font-black text-xl leading-none">CERVEZADA UNIVERSITARIA</h3>
+                <p class="font-black text-white/80">POLAR</p>
+                <p class="mt-2 text-xs text-pink-200">Disfruta de la primera cervezada universitaria en Falcón</p>
+                <p class="mt-1 text-xs text-white/70">31 de julio • 5 PM</p>
+              </div>
+              <div class="mt-8 pt-5 border-t border-white/15 flex items-end justify-between">
+                <div><p class="text-[10px] text-white/50 font-bold">CÓDIGO VIP</p><p class="font-black tracking-widest">TK-PREMIUM</p></div>
+                <div class="w-14 h-14 bg-white rounded-xl grid grid-cols-2 gap-1 p-2"><span class="rounded bg-purple-800"></span><span class="rounded bg-pink-500"></span><span class="rounded bg-pink-500"></span><span class="rounded bg-purple-800"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="space-y-6">
+
+        <div id="ticket-status" class="rounded-[2rem] border border-fuchsia-500/25 glass p-5 shadow-neon">
+          <span class="text-[11px] font-black tracking-widest px-3 py-1 rounded-full border border-pink-400/30 bg-pink-500/15 text-pink-200">🔍 MÓDULO DE VERIFICACIÓN CENTRALIZADA</span>
+          <h2 class="text-2xl font-black mt-4">Consulta el estatus de tu Boleto</h2>
+          <p class="text-sm text-slate-300 mt-2">Ingresa tu código de orden <b class="text-pink-300">TK-XXXXX</b> para confirmar el estatus y visualizar tu QR cuando sea aprobado.</p>
+          <div class="mt-5 rounded-2xl bg-purple-950/40 border border-purple-400/15 p-3 text-xs text-slate-200"><b>Tasa de Referencia Oficial BCV:</b> <span id="status-rate">cargando...</span> VES / USD</div>
+          <div class="mt-5 grid sm:grid-cols-[1fr_auto] gap-3">
+            <input id="statusCodeInput" class="field-white w-full rounded-2xl bg-white px-5 py-4 text-center font-black tracking-widest uppercase outline-none" placeholder="EJ: TK-R4B7A" />
+            <button id="verifyStatusBtn" class="rounded-2xl pink-gradient px-6 py-4 font-black">VERIFICAR</button>
+          </div>
+          <div id="statusResult" class="hidden mt-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-center"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="events-list" class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-3 h-10 rounded-full pink-gradient"></span>
+        <h2 class="text-3xl sm:text-4xl font-black">Próximos Eventos Destacados</h2>
+      </div>
+      <div id="eventsGrid" class="grid md:grid-cols-3 gap-6"></div>
+    </section>
+  </main>
+
+  <section id="adminSection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div><h2 id="adminTitle" class="text-3xl font-black text-gradient">Consola Administrativa</h2><p id="adminRoleText" class="text-sm text-slate-300 mt-1"></p></div>
+      <button id="exitAdminBtn" class="rounded-2xl border border-red-400/30 bg-red-500/10 px-5 py-3 font-black text-red-200">Salir</button>
+    </div>
+    <div id="statsGrid" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"></div>
+    <div class="grid lg:grid-cols-[1fr_.75fr] gap-6">
+      <div class="rounded-[2rem] border border-white/10 glass overflow-hidden">
+        <div class="p-5 border-b border-white/10 flex items-center justify-between gap-3"><h3 class="font-black">Órdenes y Conciliación</h3><button id="refreshAdminBtn" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold">Actualizar</button></div>
+        <div class="overflow-x-auto"><table class="admin-table w-full text-left text-sm"><thead class="bg-white/5 text-slate-300 uppercase text-xs tracking-widest"><tr><th class="p-4">TK</th><th class="p-4">Cliente / Evento</th><th class="p-4">Tickets</th><th class="p-4">Total</th><th class="p-4">Estado</th><th class="p-4 text-right">Acciones</th></tr></thead><tbody id="adminRows" class="divide-y divide-white/10"></tbody></table></div>
+      </div>
+      <div class="rounded-[2rem] border border-white/10 glass p-5">
+        <button id="startScannerBtn" class="w-full rounded-3xl border border-fuchsia-400/40 bg-fuchsia-500/15 p-6 text-center hover:bg-fuchsia-500/25 transition">
+          <div class="mx-auto w-24 h-24 rounded-3xl bg-white grid grid-cols-2 gap-2 p-4 mb-4"><span class="rounded-lg bg-purple-800"></span><span class="rounded-lg bg-pink-500"></span><span class="rounded-lg bg-pink-500"></span><span class="rounded-lg bg-purple-800"></span></div>
+          <p class="font-black text-xl">Escanear Código QR</p><p class="text-xs text-slate-300 mt-2">Solicita permiso de cámara y valida tickets sin límite.</p>
+        </button>
+        <div id="qr-reader" class="hidden mt-5"></div>
+        <div id="scanResult" class="hidden mt-5 rounded-2xl border p-4 text-center font-black"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="purchaseModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="max-w-2xl mx-auto my-8 rounded-[2rem] border border-fuchsia-400/25 glass p-5 sm:p-7 relative shadow-neon">
+      <button id="closePurchaseBtn" class="absolute top-4 right-5 text-3xl font-black text-white/70 hover:text-white">&times;</button>
+      <h2 id="purchaseTitle" class="text-3xl font-black text-gradient pr-10">Comprar tickets</h2>
+      <p id="purchaseSub" class="text-sm text-slate-300 mt-1"></p>
+      <form id="purchaseForm" class="mt-6 space-y-5">
+        <div class="grid sm:grid-cols-3 gap-3">
+          <label class="sm:col-span-1"><span class="text-xs font-black tracking-widest text-pink-200">CANTIDAD</span><input id="ticketQty" required type="number" min="1" step="1" inputmode="numeric" value="1" class="field-white mt-2 w-full rounded-2xl bg-white px-4 py-3 text-center text-xl font-black" /></label>
+          <div class="sm:col-span-2 rounded-2xl bg-white/5 border border-white/10 p-4"><p class="text-xs text-slate-300">Total a pagar</p><p id="totalUsd" class="text-2xl font-black text-white">$0.00 USD</p><p id="totalVes" class="text-lg font-black text-pink-200">0.00 VES</p><p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p></div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input id="buyerName" required class="field-white rounded-2xl bg-white px-4 py-3 font-bold" placeholder="Nombre y apellido" />
+          <input id="buyerEmail" required type="email" class="field-white rounded-2xl bg-white px-4 py-3 font-bold" placeholder="Correo electrónico" />
+        </div>
+        <div>
+          <label class="text-xs font-black tracking-widest text-pink-200">MÉTODO DE PAGO</label>
+          <select id="paymentMethod" required class="field-white mt-2 w-full rounded-2xl bg-white px-4 py-3 font-bold"><option value="">Selecciona un método</option></select>
+        </div>
+        <div id="paymentDetails" class="hidden rounded-2xl border border-pink-400/25 bg-pink-500/10 p-4 text-sm whitespace-pre-line"></div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input id="paymentReference" required class="field-white w-full rounded-2xl bg-white px-4 py-3 font-bold" placeholder="Referencia del pago" />
+          <input id="paymentProof" required type="file" accept="image/*" class="w-full rounded-2xl bg-slate-900 px-4 py-3 border border-white/10" />
+        </div>
+        <button type="submit" class="w-full rounded-2xl pink-gradient py-4 font-black text-lg">Enviar pago a revisión</button>
+      </form>
+      <div id="purchaseSuccess" class="hidden mt-6 rounded-3xl border border-amber-400/25 bg-amber-500/10 p-6 text-center"></div>
+    </div>
+  </section>
+
+  <section id="loginModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm p-4">
+    <div class="max-w-md mx-auto mt-24 rounded-[2rem] border border-fuchsia-400/25 glass p-6 shadow-neon">
+      <h2 class="text-3xl font-black text-gradient">Acceso administrativo</h2>
+      <p class="text-sm text-slate-300 mt-2">Ingresa usuario y contraseña para abrir la consola.</p>
+      <form id="adminLoginForm" class="mt-6 space-y-3">
+        <input id="adminUser" required class="field-white w-full rounded-2xl bg-white px-4 py-3 font-bold" placeholder="Usuario" />
+        <input id="adminPass" required type="password" class="field-white w-full rounded-2xl bg-white px-4 py-3 font-bold" placeholder="Contraseña" />
+        <div class="grid grid-cols-2 gap-3 pt-2"><button type="button" id="cancelLoginBtn" class="rounded-2xl bg-white/10 py-3 font-black">Cancelar</button><button type="submit" class="rounded-2xl pink-gradient py-3 font-black">Entrar</button></div>
+      </form>
+    </div>
+  </section>
+
+  <a id="whatsapp-float" href="https://wa.me/584124723147?text=Hola,%20tengo%20una%20duda%20con%20Ticko%20Eventos" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 bg-[#25d366] text-white w-16 h-16 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all grid place-items-center cursor-grab" title="Arrástrame para mover WhatsApp">
+    <svg class="w-8 h-8 fill-current pointer-events-none" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.017 14.074.99 11.487.99c-5.462 0-9.91 4.444-9.913 9.875-.001 1.718.452 3.4 1.311 4.888l-.993 3.624 3.71-.973zm13.066-7.387c-.348-.174-2.057-1.014-2.377-1.13-.319-.116-.552-.174-.784.174-.233.348-.899 1.13-1.102 1.362-.204.233-.407.261-.755.087-.348-.174-1.472-.543-2.804-1.727-1.037-.924-1.737-2.064-1.941-2.412-.204-.348-.022-.536.152-.71.157-.156.348-.406.522-.609.174-.203.232-.348.348-.58.116-.232.058-.435-.029-.609-.087-.174-.784-1.884-1.074-2.58-.282-.678-.57-.586-.784-.597-.203-.011-.435-.014-.667-.014-.232 0-.609.087-.927.435-.319.348-1.217 1.189-1.217 2.9 0 1.711 1.246 3.364 1.419 3.596.174.232 2.453 3.743 5.939 5.25.829.358 1.476.573 1.981.733.833.265 1.59.227 2.19.138.667-.1 2.057-.841 2.348-1.652.29-.812.29-1.508.203-1.652-.088-.144-.319-.232-.667-.406z"/></svg>
+  </a>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-sm text-slate-400">© 2026 TICKO Eventos. Boletería digital con QR.</footer>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js';
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAIFaXMf_nKkiARE14ZsxAkf4wB80A1OWs',
+      authDomain: 'tickoeventos-dca17.firebaseapp.com',
+      projectId: 'tickoeventos-dca17',
+      storageBucket: 'tickoeventos-dca17.firebasestorage.app',
+      messagingSenderId: '778626124823',
+      appId: '1:778626124823:web:606380f91c23f6a258e052',
+      measurementId: 'G-72J2L5VBCD'
+    };
+
+    const ADMIN_USERS = {
+      super: { user: 'tickoenvento.com', pass: 'jaldier2555', role: 'SUPER_ADMIN' },
+      organizer: { user: 'organizadorticko', pass: 'T-icko.2026', role: 'ORGANIZER' }
+    };
+
+    const FALLBACK_RATE = 578;
+    let bcvRate = FALLBACK_RATE, db = null, analytics = null, firebaseReady = false, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
+    const $ = id => document.getElementById(id);
+    const money = n => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const safeText = v => String(v ?? '').replace(/[<>&"']/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#039;'}[s]));
+    const isFirebaseConfigured = () => firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('PEGAR_AQUI');
+    const FIREBASE_TIMEOUT_MS = 12000;
+    const withTimeout = (promise, ms = FIREBASE_TIMEOUT_MS, label = 'operación') => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(`Tiempo agotado en ${label}`)), ms))
+    ]);
+    const normalizeQty = value => {
+      const qty = Math.floor(Number(value || 1));
+      return Number.isFinite(qty) && qty > 0 ? qty : 1;
+    };
+    const generateTicketCodes = (orderId, qty) => Array.from({ length: normalizeQty(qty) }, (_, i) => `${orderId}-${String(i + 1).padStart(3, '0')}`);
+    const getOrderTickets = order => Array.isArray(order?.tickets) && order.tickets.length ? order.tickets : generateTicketCodes(order.orderId, order.qty);
+    const renderTicketList = tickets => `<div class="mt-4 rounded-2xl bg-black/20 border border-white/10 p-4 text-left"><p class="text-xs font-black tracking-widest text-pink-200 uppercase mb-2">Tickets incluidos</p><div class="max-h-44 overflow-y-auto space-y-1">${tickets.map((tk, i) => `<p class="text-xs font-mono text-slate-200"><b>${i + 1}.</b> ${safeText(tk)}</p>`).join('')}</div></div>`;
+    const renderOrderDetails = order => {
+      const tickets = getOrderTickets(order);
+      return `<div class="mt-4 grid sm:grid-cols-2 gap-3 text-left text-sm"><div class="rounded-2xl bg-white/5 border border-white/10 p-3"><p class="text-[11px] uppercase tracking-widest text-slate-400 font-black">Cliente</p><p class="font-black mt-1">${safeText(order.buyerName || 'No registrado')}</p></div><div class="rounded-2xl bg-white/5 border border-white/10 p-3"><p class="text-[11px] uppercase tracking-widest text-slate-400 font-black">Correo</p><p class="font-bold mt-1 break-all">${safeText(order.buyerEmail || 'No registrado')}</p></div><div class="rounded-2xl bg-white/5 border border-white/10 p-3"><p class="text-[11px] uppercase tracking-widest text-slate-400 font-black">Evento</p><p class="font-black mt-1">${safeText(order.eventTitle || 'No registrado')}</p></div><div class="rounded-2xl bg-white/5 border border-white/10 p-3"><p class="text-[11px] uppercase tracking-widest text-slate-400 font-black">Cantidad</p><p class="font-black mt-1">${tickets.length} ticket(s)</p></div></div>${renderTicketList(tickets)}`;
+    };
+    const buildQrPayload = order => {
+      const tickets = getOrderTickets(order);
+      return { orderId: order.orderId, tk: order.orderId, eventId: order.eventId, eventTitle: order.eventTitle, buyerName: order.buyerName, buyerEmail: order.buyerEmail, qty: tickets.length, tickets };
+    };
+
+    const events = [
+      { id: 'cervezada', title: 'Cervezada Universitaria Polar', short: 'Cervezada Universitaria Polar', desc: 'Primera cervezada universitaria en Falcón con pase digital y QR unificado.', date: '31 de julio', time: '5:00 PM', venue: 'Centro Comercial Las Virtudes / Punto Fijo - Estado Falcón', priceUSD: 15, img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { transferencia: 'Transferencia bancaria\nBanco Mercantil\nTipo de cuenta: Corriente\nNúmero de cuenta: 0105 0058 3910 5829 0533\nC.I.: 13.934.428\nTitular: Elys Padilla', pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246597921\nC.I.: 13.934.428' } },
+      { id: 'michael', title: 'Tributo a Michael Jackson', short: 'Tributo a Michael Jackson', desc: 'Show musical tributo a Michael Jackson con acceso digital y validación QR.', date: '16 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant', priceUSD: 5, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcST4Tp5X8MCwQG4Hny0vpnhUud0YQSBi4yeCg&s', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } },
+      { id: 'newyork', title: 'Vuelve la New York', short: 'Vuelve la New York', desc: 'Evento especial con entrada digital, conciliación por evento y QR unificado.', date: '4 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant', priceUSD: 5, img: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } }
+    ];
+
+    try {
+      if (isFirebaseConfigured()) {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        firebaseReady = true;
+
+        isAnalyticsSupported()
+          .then((supported) => { if (supported) analytics = getAnalytics(app); })
+          .catch((err) => console.warn('Analytics no inicializó.', err));
+      }
+    } catch (err) {
+      console.warn('Firebase no inicializó. Usando modo local.', err);
+    }
+    function localOrders(){ return JSON.parse(localStorage.getItem('ticko_orders_v3') || '[]'); }
+    function saveLocalOrders(orders){ localStorage.setItem('ticko_orders_v3', JSON.stringify(orders)); }
+    function localScans(){ return JSON.parse(localStorage.getItem('ticko_scans_v3') || '[]'); }
+    function saveLocalScans(scans){ localStorage.setItem('ticko_scans_v3', JSON.stringify(scans)); }
+
+    async function saveOrder(order){
+      console.log('[TICKO] Iniciando guardado de orden:', order.orderId);
+      if (firebaseReady) {
+        try {
+          console.log('[TICKO] Guardando orden en Firebase:', order.orderId);
+          await withTimeout(setDoc(doc(db, 'orders', order.orderId), { ...order, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'guardar orden en Firebase');
+          console.log('[TICKO] Orden guardada correctamente en Firebase:', order.orderId);
+          return { mode: 'firebase' };
+        } catch (err) {
+          console.warn('[TICKO] No se pudo guardar en Firebase. Guardando en modo local.', err);
+        }
+      }
+      const orders = localOrders();
+      orders.unshift({ ...order, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+      saveLocalOrders(orders);
+      console.log('[TICKO] Orden guardada en modo local:', order.orderId);
+      return { mode: 'local' };
+    }
+    async function getOrder(orderId){
+      if (firebaseReady) {
+        try {
+          const snap = await withTimeout(getDoc(doc(db, 'orders', orderId)), FIREBASE_TIMEOUT_MS, 'consultar orden en Firebase');
+          if (snap.exists()) return snap.data();
+        } catch (err) {
+          console.warn('[TICKO] No se pudo consultar Firebase. Consultando modo local.', err);
+        }
+      }
+      return localOrders().find(o => o.orderId === orderId) || null;
+    }
+    async function getAllOrders(){
+      if (firebaseReady) {
+        try {
+          const snap = await withTimeout(getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc'))), FIREBASE_TIMEOUT_MS, 'cargar órdenes desde Firebase');
+          return snap.docs.map(d => d.data());
+        } catch (err) {
+          console.warn('[TICKO] No se pudieron cargar órdenes desde Firebase. Usando modo local.', err);
+        }
+      }
+      return localOrders();
+    }
+    async function updateOrder(orderId, patch){
+      if (firebaseReady) {
+        try {
+          await withTimeout(updateDoc(doc(db, 'orders', orderId), { ...patch, updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'actualizar orden en Firebase');
+          return { mode: 'firebase' };
+        } catch (err) {
+          console.warn('[TICKO] No se pudo actualizar Firebase. Actualizando modo local.', err);
+        }
+      }
+      const orders = localOrders().map(o => o.orderId === orderId ? { ...o, ...patch, updatedAt: new Date().toISOString() } : o);
+      saveLocalOrders(orders);
+      return { mode: 'local' };
+    }
+    async function logScan(scan){
+      if (firebaseReady) {
+        try {
+          await withTimeout(addDoc(collection(db, 'scans'), { ...scan, createdAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'registrar escaneo en Firebase');
+          return { mode: 'firebase' };
+        } catch (err) {
+          console.warn('[TICKO] No se pudo registrar escaneo en Firebase. Guardando modo local.', err);
+        }
+      }
+      const scans = localScans();
+      scans.unshift({ ...scan, createdAt: new Date().toISOString() });
+      saveLocalScans(scans);
+      return { mode: 'local' };
+    }
+
+    async function loadRate(){
+      try {
+        const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { cache: 'no-store' });
+        const data = await res.json();
+        bcvRate = Number(data.promedio || data.venta || data.compra || FALLBACK_RATE);
+      } catch { bcvRate = FALLBACK_RATE; }
+      $('hero-rate').textContent = money(bcvRate); $('status-rate').textContent = money(bcvRate); renderEvents(); updatePurchaseTotals();
+    }
+
+    function renderEvents(){
+      $('eventsGrid').innerHTML = events.map(ev => `<article class="event-card rounded-[2rem] overflow-hidden border border-white/10 glass"><div class="relative h-52"><img src="${ev.img}" alt="${safeText(ev.title)}" class="w-full h-full object-cover"><span class="absolute top-4 right-4 rounded-full bg-white text-slate-950 px-3 py-1 text-xs font-black">$${ev.priceUSD} USD</span></div><div class="p-5"><h3 class="text-2xl font-black">${safeText(ev.title)}</h3><p class="mt-2 text-sm text-slate-300">${safeText(ev.desc)}</p><div class="mt-4 space-y-1 text-xs text-slate-300 font-bold"><p>📅 ${ev.date} • ${ev.time}</p><p>📍 ${ev.venue}</p><p>💵 $${money(ev.priceUSD)} USD</p><p>💱 ${money(ev.priceUSD * bcvRate)} VES</p></div><button data-buy="${ev.id}" class="buy-btn mt-5 w-full rounded-2xl pink-gradient py-3 font-black">Comprar entrada</button></div></article>`).join('');
+      document.querySelectorAll('.buy-btn').forEach(btn => btn.addEventListener('click', () => openPurchase(btn.dataset.buy)));
+    }
+
+    function openPurchase(eventId){
+      selectedEvent = events.find(e => e.id === eventId);
+      $('purchaseTitle').textContent = 'Comprar: ' + selectedEvent.title;
+      $('purchaseSub').textContent = `${selectedEvent.date} • ${selectedEvent.time} • ${selectedEvent.venue}`;
+      $('purchaseForm').reset(); $('ticketQty').value = 1; $('purchaseSuccess').classList.add('hidden'); $('purchaseForm').classList.remove('hidden'); $('paymentDetails').classList.add('hidden');
+      const labels = { transferencia: 'Transferencia bancaria', pago_movil: 'Pago móvil', zelle: 'Zelle' };
+      $('paymentMethod').innerHTML = '<option value="">Selecciona un método</option>' + Object.keys(selectedEvent.payments).map(key => `<option value="${key}">${labels[key] || key}</option>`).join('');
+      $('purchaseModal').classList.remove('hidden'); updatePurchaseTotals();
+    }
+    function updatePurchaseTotals(){ if (!selectedEvent) return; const qty = normalizeQty($('ticketQty').value); $('ticketQty').value = qty; const total = qty * selectedEvent.priceUSD; $('totalUsd').textContent = `$${money(total)} USD`; $('totalVes').textContent = `${money(total * bcvRate)} VES`; $('rateNote').textContent = `Tasa BCV: ${money(bcvRate)} VES / USD`; }
+    function generateOrderId(){ return 'TK-' + Date.now().toString(36).slice(-4).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
+    function parseQrPayload(text){ try { const obj = JSON.parse(text); return obj.orderId || obj.tk || obj.id || text; } catch { return String(text).trim(); } }
+    async function fileToBase64(file){ if (!file) return null; if (file.size > 750000) return { name: file.name, type: file.type, warning: 'Archivo mayor a 750KB. En producción usa Firebase Storage.' }; return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve({ name: file.name, type: file.type, dataUrl: r.result }); r.onerror = reject; r.readAsDataURL(file); }); }
+
+    $('ticketQty').addEventListener('input', updatePurchaseTotals);
+    $('paymentMethod').addEventListener('change', () => { const method = $('paymentMethod').value; if (selectedEvent && selectedEvent.payments[method]) { $('paymentDetails').textContent = selectedEvent.payments[method]; $('paymentDetails').classList.remove('hidden'); } else $('paymentDetails').classList.add('hidden'); });
+    $('closePurchaseBtn').addEventListener('click', () => $('purchaseModal').classList.add('hidden'));
+    $('purchaseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedEvent) return;
+
+      const submitBtn = e.submitter || $('purchaseForm').querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : '';
+
+      try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Enviando...';
+          submitBtn.classList.add('opacity-70', 'cursor-wait');
+        }
+
+        console.log('[TICKO] Submit de compra iniciado.');
+        const qty = normalizeQty($('ticketQty').value);
+        $('ticketQty').value = qty;
+        const totalUSD = qty * selectedEvent.priceUSD;
+        const orderId = generateOrderId();
+        const tickets = generateTicketCodes(orderId, qty);
+        console.log('[TICKO] Orden preparada:', { orderId, qty, tickets });
+        const proof = await fileToBase64($('paymentProof').files[0]);
+        console.log('[TICKO] Comprobante procesado para orden:', orderId);
+        const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), qty, tickets, priceUSD: selectedEvent.priceUSD, totalUSD, rateVES: bcvRate, totalVES: totalUSD * bcvRate, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
+
+        const saveResult = await saveOrder(order);
+        console.log('[TICKO] Guardado completado:', saveResult);
+
+        $('purchaseForm').classList.add('hidden');
+        $('purchaseSuccess').classList.remove('hidden');
+        $('purchaseSuccess').innerHTML = `<p class="text-2xl font-black text-amber-200">Pago en revisión</p><p class="mt-2 text-sm text-slate-200">Tu código es:</p><p class="mt-3 text-3xl font-black tracking-widest text-pink-200">${orderId}</p><p class="mt-3 text-xs text-slate-300">Guárdalo para consultar el estado de tu boleto. Al aprobarse, se liberará el QR con tus ${qty} ticket(s) numerados.</p>`;
+        await refreshAdmin();
+        console.log('[TICKO] Flujo de compra finalizado correctamente:', orderId);
+      } catch (err) {
+        console.error('[TICKO] Error al enviar el pago a revisión:', err);
+        alert('No se pudo enviar el pago a revisión. Revisa tu conexión, los permisos de Firebase o intenta nuevamente.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText || 'Enviar pago a revisión';
+          submitBtn.classList.remove('opacity-70', 'cursor-wait');
+        }
+      }
+    });
+
+    async function renderStatus(){
+      const code = $('statusCodeInput').value.trim().toUpperCase(); if (!code) return alert('Ingresa tu código TK.');
+      const order = await getOrder(code); $('statusResult').classList.remove('hidden');
+      if (!order) { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ No existe</p><p class="text-xs text-slate-300 mt-1">El código no aparece en la base de datos.</p>`; return; }
+      const detailsHtml = renderOrderDetails(order);
+      if (order.status === 'RECHAZADO') { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ Rechazado</p><p class="text-xs text-slate-300 mt-1">Comunícate con soporte y verifica la referencia de pago.</p>${detailsHtml}`; return; }
+      if (order.status === 'PENDIENTE') { $('statusResult').innerHTML = `<p class="text-amber-300 text-xl font-black">⏳ Pendiente de aprobación</p><p class="text-xs text-slate-300 mt-1">Tu pago está en revisión administrativa. El QR se libera cuando administración apruebe el pago.</p>${detailsHtml}`; return; }
+      if (order.scanned) { $('statusResult').innerHTML = `<p class="text-orange-300 text-xl font-black">⚠️ Ya escaneado</p><p class="text-xs text-slate-300 mt-1">Este QR ya fue utilizado para acceso.</p>${detailsHtml}`; return; }
+      $('statusResult').innerHTML = `<p class="text-green-300 text-xl font-black">✅ Válido</p><p class="text-xs text-slate-300 mt-1">${safeText(order.eventTitle)} • ${getOrderTickets(order).length} ticket(s)</p>${detailsHtml}<div class="qr-shell mt-4"><canvas id="clientQr"></canvas></div><p class="text-[11px] mt-3 text-slate-400">Este QR contiene la orden, cliente, evento, cantidad y tickets numerados.</p>`;
+      setTimeout(() => {
+        const payload = buildQrPayload(order);
+        QRCode.toCanvas($('clientQr'), JSON.stringify(payload), { width: 190, margin: 2, errorCorrectionLevel: 'H', color: { dark: '#050816', light: '#ffffff' } }, err => {
+          if (err) {
+            console.error('[TICKO] Error generando QR completo. Generando QR resumido.', err);
+            QRCode.toCanvas($('clientQr'), JSON.stringify({ orderId: order.orderId, tk: order.orderId, eventId: order.eventId, qty: getOrderTickets(order).length }), { width: 190, margin: 2, errorCorrectionLevel: 'H', color: { dark: '#050816', light: '#ffffff' } });
+          }
+        });
+      }, 10);
+    }
+    $('verifyStatusBtn').addEventListener('click', renderStatus);
+
+    let tapCount = 0, tapTimer = null;
+    $('logoBtn').addEventListener('click', () => { tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => tapCount = 0, 1300); if (tapCount >= 5) { tapCount = 0; $('loginModal').classList.remove('hidden'); } });
+    $('cancelLoginBtn').addEventListener('click', () => $('loginModal').classList.add('hidden'));
+    $('adminLoginForm').addEventListener('submit', async (e) => { e.preventDefault(); const user = $('adminUser').value.trim(); const pass = $('adminPass').value; const match = Object.values(ADMIN_USERS).find(u => u.user === user && u.pass === pass); if (!match) return alert('Acceso denegado.'); adminSession = match; $('loginModal').classList.add('hidden'); $('storefront').classList.add('hidden'); $('adminSection').classList.remove('hidden'); $('adminRoleText').textContent = match.role === 'SUPER_ADMIN' ? 'Súper administrador: métricas completas, conciliación y escáner QR.' : 'Organizador: ventas por evento, estadísticas QR y escáner.'; await refreshAdmin(); });
+    $('exitAdminBtn').addEventListener('click', () => { adminSession = null; $('adminSection').classList.add('hidden'); $('storefront').classList.remove('hidden'); });
+    $('refreshAdminBtn').addEventListener('click', refreshAdmin);
+
+    async function refreshAdmin(){
+      if (!adminSession) return; ordersCache = await getAllOrders(); const scans = firebaseReady ? [] : localScans();
+      const approved = ordersCache.filter(o => o.status === 'APROBADO'); const pending = ordersCache.filter(o => o.status === 'PENDIENTE'); const rejected = ordersCache.filter(o => o.status === 'RECHAZADO'); const scanned = ordersCache.filter(o => o.scanned); const soldTickets = approved.reduce((a,o) => a + Number(o.qty || 0), 0); const totalMoney = approved.reduce((a,o) => a + Number(o.totalUSD || 0), 0); const invalidScans = scans.filter(s => s.result === 'NO_EXISTE').length;
+      const baseStats = [ ['Eventos', events.length], ['Tickets vendidos', soldTickets], ['Escaneados', scanned.length], ['Verificados', approved.length], ['QR falsos/incorrectos', invalidScans] ];
+      const superExtra = [ ['Dinero recaudado', `$${money(totalMoney)} USD`], ['Pendientes', pending.length], ['Rechazados', rejected.length] ];
+      const stats = adminSession.role === 'SUPER_ADMIN' ? [...baseStats, ...superExtra] : baseStats;
+      $('statsGrid').innerHTML = stats.map(([label,value]) => `<div class="rounded-3xl border border-white/10 glass p-5"><p class="text-xs uppercase tracking-widest text-slate-400 font-black">${label}</p><p class="text-2xl font-black mt-2 text-pink-200">${value}</p></div>`).join('');
+      $('adminRows').innerHTML = ordersCache.map(o => { const actions = adminSession.role === 'SUPER_ADMIN' ? `<button data-approve="${o.orderId}" class="rounded-lg bg-green-500/20 text-green-200 px-3 py-1 font-black">Aprobar</button> <button data-reject="${o.orderId}" class="rounded-lg bg-red-500/20 text-red-200 px-3 py-1 font-black">Rechazar</button>` : '<span class="text-slate-400 text-xs">Solo lectura</span>'; return `<tr><td class="p-4 font-mono font-black text-pink-200">${safeText(o.orderId)}</td><td class="p-4"><b>${safeText(o.buyerName)}</b><br><span class="text-xs text-slate-400">${safeText(o.eventTitle)}</span></td><td class="p-4">${o.qty}</td><td class="p-4">$${money(o.totalUSD)}<br><span class="text-xs text-slate-400">${money(o.totalVES)} VES</span></td><td class="p-4"><span class="status-pill ${o.status === 'APROBADO' ? 'bg-green-500/15 text-green-200' : o.status === 'RECHAZADO' ? 'bg-red-500/15 text-red-200' : 'bg-amber-500/15 text-amber-200'}">${o.status}${o.scanned ? ' • ESCANEADO' : ''}</span></td><td class="p-4 text-right space-x-2">${actions}</td></tr>`; }).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">Sin órdenes todavía.</td></tr>`;
+      document.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.approve, { status: 'APROBADO' }); await refreshAdmin(); }));
+      document.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.reject, { status: 'RECHAZADO' }); await refreshAdmin(); }));
+    }
+
+    async function handleScan(decodedText){
+      const orderId = parseQrPayload(decodedText).toUpperCase(); const order = await getOrder(orderId); let result = '', html = '', patch = null;
+      if (!order) { result = 'NO_EXISTE'; html = `<p class="text-red-300 text-2xl">❌ No existe</p><p class="text-xs text-slate-300 mt-1">QR falso o incorrecto: ${safeText(orderId)}</p>`; }
+      else if (order.status === 'PENDIENTE') { result = 'PENDIENTE'; html = `<p class="text-amber-300 text-2xl">⏳ Pendiente de aprobación</p><p class="text-xs text-slate-300 mt-1">${safeText(order.eventTitle)}</p>${renderOrderDetails(order)}`; }
+      else if (order.status === 'RECHAZADO') { result = 'RECHAZADO'; html = `<p class="text-red-300 text-2xl">❌ Rechazado</p><p class="text-xs text-slate-300 mt-1">Pago rechazado.</p>${renderOrderDetails(order)}`; }
+      else if (order.scanned) { result = 'YA_ESCANEADO'; html = `<p class="text-orange-300 text-2xl">⚠️ Ya escaneado</p><p class="text-xs text-slate-300 mt-1">Este ticket ya fue utilizado.</p>${renderOrderDetails(order)}`; }
+      else { result = 'VALIDO'; patch = { scanned: true, scanCount: Number(order.scanCount || 0) + 1, scannedAt: new Date().toISOString() }; html = `<p class="text-green-300 text-2xl">✅ Válido</p><p class="text-xs text-slate-300 mt-1">${safeText(order.eventTitle)} • ${getOrderTickets(order).length} ticket(s)</p>${renderOrderDetails(order)}`; }
+      if (patch) await updateOrder(order.orderId, patch); await logScan({ orderId, result });
+      $('scanResult').classList.remove('hidden'); $('scanResult').innerHTML = html; await refreshAdmin();
+    }
+    $('startScannerBtn').addEventListener('click', async () => {
+      $('qr-reader').classList.remove('hidden'); $('scanResult').classList.add('hidden');
+      try { if (!html5QrCode) html5QrCode = new Html5Qrcode('qr-reader'); if (html5QrCode.isScanning) return; await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } }, async text => { await handleScan(text); }, () => {}); } catch (err) { alert('No se pudo abrir la cámara. Revisa permisos o usa HTTPS/GitHub Pages.'); console.error(err); }
+    });
+
+    const savedTheme = localStorage.getItem('ticko_theme');
+    if (savedTheme === 'light') document.documentElement.classList.remove('dark');
+    else document.documentElement.classList.add('dark');
+
+    function updateThemeButton(){
+      $('themeToggle').textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+    }
+    updateThemeButton();
+
+    $('themeToggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('ticko_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      updateThemeButton();
+    });
+    ['premiumCard'].forEach(id => { const el = $(id); el.addEventListener('touchstart', () => el.classList.add('touching')); el.addEventListener('touchend', () => el.classList.remove('touching')); });
+    function setupWhatsappDrag(){ const el = $('whatsapp-float'); let dragging = false, moved = false, sx=0, sy=0, ox=0, oy=0; el.addEventListener('pointerdown', e => { dragging = true; moved = false; sx=e.clientX; sy=e.clientY; const r=el.getBoundingClientRect(); ox=r.left; oy=r.top; el.setPointerCapture(e.pointerId); el.classList.add('dragging'); }); el.addEventListener('pointermove', e => { if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)+Math.abs(dy)>7) moved=true; el.style.left=Math.min(window.innerWidth-70, Math.max(8, ox+dx))+'px'; el.style.top=Math.min(window.innerHeight-70, Math.max(8, oy+dy))+'px'; el.style.right='auto'; el.style.bottom='auto'; }); el.addEventListener('pointerup', e => { dragging=false; el.classList.remove('dragging'); if(moved) e.preventDefault(); }); el.addEventListener('click', e => { if(moved) { e.preventDefault(); moved=false; } }); }
+    setupWhatsappDrag(); loadRate();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TICKO Eventos | Tickets QR + Validación</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tickoBg: '#050816', tickoCard: '#10172f', tickoPink: '#f032d2', tickoPurple: '#7c3aed'
+          },
+          boxShadow: { neon: '0 0 35px rgba(240,50,210,.28)' }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .premium-bg { background: radial-gradient(circle at 10% 10%, rgba(240,50,210,.20), transparent 26%), radial-gradient(circle at 90% 20%, rgba(124,58,237,.22), transparent 30%), linear-gradient(140deg, #050816 0%, #070b1f 45%, #0d1530 100%); }
+    .glass { background: rgba(13, 20, 46, .72); backdrop-filter: blur(16px); }
+    .pink-gradient { background: linear-gradient(135deg, #f032d2, #7c3aed); }
+    .text-gradient { background: linear-gradient(135deg, #ff4ddd, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero-3d, .event-card { transform-style: preserve-3d; perspective: 1100px; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .hero-3d:hover, .hero-3d.touching { transform: rotateX(3deg) rotateY(-4deg) translateY(-4px); box-shadow: 0 26px 80px rgba(240,50,210,.25); }
+    .event-card:hover, .event-card.touching { transform: translateY(-8px) rotateX(2deg) rotateY(-2deg); border-color: rgba(240,50,210,.55); box-shadow: 0 22px 60px rgba(124,58,237,.25); }
+    .ticket-mini { background: linear-gradient(145deg, rgba(240,50,210,.33), rgba(11,15,36,.92) 45%, rgba(18,12,42,.94)); }
+    input, select, textarea, .field-white { color: #050816 !important; }
+    input::placeholder, textarea::placeholder { color: #5b6478 !important; opacity: 1; }
+    input[type="file"] { color: #e5e7eb !important; }
+    .admin-table { min-width: 980px; }
+    #whatsapp-float.dragging { opacity: .84; transform: scale(1.05); }
+    #qr-reader video { border-radius: 18px; }
+    .qr-shell { background: #fff; padding: 12px; border-radius: 18px; display: inline-flex; }
+    .status-pill { display:inline-flex; align-items:center; gap:.4rem; border-radius:999px; padding:.35rem .7rem; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     @media (max-width: 640px) { .admin-table { min-width: 780px; } .mobile-title { font-size: 2rem; } }
   </style>
 </head>
