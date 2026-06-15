@@ -371,7 +371,8 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js';
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
     const firebaseConfig = {
       apiKey: 'AIzaSyAIFaXMf_nKkiARE14ZsxAkf4wB80A1OWs',
@@ -395,7 +396,7 @@
     const LOCAL_SCANS_KEY = 'ticko_scans_v3';
     const ADMIN_CACHE_KEY = 'ticko_admin_orders_cache_v1';
     const LOCAL_NOTIFICATIONS_KEY = 'ticko_notifications_v1';
-    let bcvRate = FALLBACK_RATE, bcvEuroRate = FALLBACK_EUR_RATE, db = null, auth = null, analytics = null, firebaseReady = false, firebaseAuthPromise = null, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
+    let bcvRate = FALLBACK_RATE, bcvEuroRate = FALLBACK_EUR_RATE, db = null, auth = null, storage = null, analytics = null, firebaseReady = false, firebaseAuthPromise = null, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [], ordersUnsubscribe = null;
     const $ = id => document.getElementById(id);
     const money = n => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const safeText = v => String(v ?? '').replace(/[<>&"']/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#039;'}[s]));
@@ -443,6 +444,7 @@
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
+        storage = getStorage(app);
         firebaseReady = true;
         firebaseAuthPromise = signInAnonymously(auth)
           .then((credential) => {
@@ -523,6 +525,16 @@
       saveLocalNotifications(notifications);
       return { mode: 'local-notification-cache' };
     }
+    const stripProofBinaryData = proof => {
+      if (!proof) return null;
+      const { dataUrl, blob, file, ...meta } = proof;
+      return meta;
+    };
+    const sanitizeOrderForFirestore = order => ({
+      ...order,
+      proof: stripProofBinaryData(order?.proof)
+    });
+
     async function queueOrderNotifications(order){
       const adminBody = `Nueva compra TICKO\nOrden: ${order.orderId}\nEvento: ${order.eventTitle}\nCliente: ${order.buyerName}\nCorreo: ${order.buyerEmail}\nCantidad: ${order.qty}\nTotal: ${formatOrderAmount(order)} / ${money(order.totalVES)} VES\nReferencia: ${order.paymentReference}`;
       const buyerBody = `Hola ${order.buyerName || ''}. Tu pago fue recibido y está en revisión. Código de orden: ${order.orderId}. Contacto TICKO Eventos: ${CONTACT_EMAIL}.`;
@@ -546,8 +558,9 @@
         try {
           await ensureAnonymousAuth();
           console.log('[TICKO] Guardando orden en Firebase:', order.orderId);
-          await withTimeout(setDoc(doc(db, 'orders', order.orderId), { ...order, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'guardar orden en Firebase');
-          syncOrderToAdminCache({ ...order, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+          const firestoreOrder = sanitizeOrderForFirestore(order);
+          await withTimeout(setDoc(doc(db, 'orders', order.orderId), { ...firestoreOrder, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'guardar orden en Firebase');
+          syncOrderToAdminCache({ ...firestoreOrder, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
           console.log('[TICKO] Orden guardada correctamente en Firebase:', order.orderId);
           return { mode: 'firebase' };
         } catch (err) {
@@ -697,6 +710,14 @@
       img.onerror = reject;
       img.src = dataUrl;
     });
+    const dataUrlToBlob = dataUrl => {
+      const [header, base64] = String(dataUrl || '').split(',');
+      const mime = header.match(/data:(.*?);base64/)?.[1] || 'application/octet-stream';
+      const binary = atob(base64 || '');
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    };
     const canvasToBlob = (canvas, type = 'image/jpeg', quality = 0.78) => new Promise(resolve => {
       if (canvas.toBlob) canvas.toBlob(blob => resolve(blob), type, quality);
       else {
@@ -707,6 +728,35 @@
         resolve(new Blob([bytes], { type }));
       }
     });
+    async function uploadProofToStorage(proof, orderId){
+      if (!proof) return null;
+      const proofMeta = stripProofBinaryData(proof);
+
+      if (!firebaseReady || !storage || !proof.dataUrl) {
+        return proofMeta;
+      }
+
+      try {
+        await ensureAnonymousAuth();
+        const blob = dataUrlToBlob(proof.dataUrl);
+        const extension = (proof.type || blob.type || 'image/jpeg').includes('png') ? 'png' : 'jpg';
+        const safeName = String(proof.name || `comprobante-${orderId}.${extension}`).replace(/[^a-zA-Z0-9._-]/g, '-');
+        const path = `payment-proofs/${orderId}/${Date.now()}-${safeName}`;
+        const fileRef = storageRef(storage, path);
+        console.log('[TICKO] Subiendo comprobante a Firebase Storage:', { orderId, path });
+        const uploadSnapshot = await withTimeout(uploadBytes(fileRef, blob, {
+          contentType: proof.type || blob.type || 'image/jpeg',
+          customMetadata: { orderId }
+        }), FIREBASE_TIMEOUT_MS, 'subir comprobante a Firebase Storage');
+        const url = await withTimeout(getDownloadURL(uploadSnapshot.ref), FIREBASE_TIMEOUT_MS, 'obtener URL del comprobante');
+        console.log('[TICKO] Comprobante subido correctamente a Firebase Storage:', { orderId, path });
+        return { ...proofMeta, url, path, storage: 'firebase-storage' };
+      } catch (err) {
+        console.warn('[TICKO] No se pudo subir el comprobante a Firebase Storage. Se guardará solo metadata sin base64 en Firestore.', err);
+        return { ...proofMeta, url: null, path: null, storage: 'firebase-storage-error', uploadError: err?.message || String(err) };
+      }
+    }
+
     async function compressImageFile(file, maxDimension = 800, quality = 0.78){
       if (!file) return null;
       if (!file.type?.startsWith('image/')) {
@@ -765,7 +815,8 @@
         const orderId = generateOrderId();
         const tickets = generateTicketCodes(orderId, qty);
         console.log('[TICKO] Orden preparada:', { orderId, qty, tickets });
-        const proof = await compressImageFile($('paymentProof').files[0], 800, 0.78);
+        const compressedProof = await compressImageFile($('paymentProof').files[0], 800, 0.78);
+        const proof = firebaseReady ? await uploadProofToStorage(compressedProof, orderId) : compressedProof;
         console.log('[TICKO] Comprobante procesado para orden:', orderId);
         const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), contactEmail: CONTACT_EMAIL, notificationEmail: CONTACT_EMAIL, qty, tickets, priceUSD: selectedEvent.priceUSD, currency, totalUSD, rateVES: rateForOrder, totalVES: totalUSD * rateForOrder, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
 
@@ -819,7 +870,7 @@
     $('logoBtn').addEventListener('click', () => { tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => tapCount = 0, 1300); if (tapCount >= 5) { tapCount = 0; $('loginModal').classList.remove('hidden'); } });
     $('cancelLoginBtn').addEventListener('click', () => $('loginModal').classList.add('hidden'));
     $('adminLoginForm').addEventListener('submit', async (e) => { e.preventDefault(); const user = $('adminUser').value.trim(); const pass = $('adminPass').value; const match = Object.values(ADMIN_USERS).find(u => u.user === user && u.pass === pass); if (!match) return alert('Acceso denegado.'); adminSession = match; $('loginModal').classList.add('hidden'); $('storefront').classList.add('hidden'); $('adminSection').classList.remove('hidden'); $('adminRoleText').textContent = match.role === 'SUPER_ADMIN' ? 'Súper administrador: métricas completas, conciliación, escáner QR y respaldo local en caché.' : 'Organizador: ventas por evento, estadísticas QR, escáner y respaldo local en caché.'; await refreshAdmin(); });
-    $('exitAdminBtn').addEventListener('click', () => { adminSession = null; $('adminSection').classList.add('hidden'); $('storefront').classList.remove('hidden'); });
+    $('exitAdminBtn').addEventListener('click', () => { stopOrdersRealtimeListener(); adminSession = null; $('adminSection').classList.add('hidden'); $('storefront').classList.remove('hidden'); });
     $('refreshAdminBtn').addEventListener('click', refreshAdmin);
 
     function renderAdminDashboard(orders, options = {}){
@@ -836,10 +887,44 @@
       document.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.approve, { status: 'APROBADO' }); await refreshAdmin(); }));
       document.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.reject, { status: 'RECHAZADO' }); await refreshAdmin(); }));
     }
+    function stopOrdersRealtimeListener(){
+      if (ordersUnsubscribe) {
+        ordersUnsubscribe();
+        ordersUnsubscribe = null;
+        console.log('[TICKO] Listener realtime de órdenes detenido.');
+      }
+    }
+    async function startOrdersRealtimeListener(){
+      if (!adminSession || !firebaseReady || !db) return false;
+      if (ordersUnsubscribe) return true;
+
+      try {
+        await ensureAnonymousAuth();
+        const ordersQuery = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+        ordersUnsubscribe = onSnapshot(ordersQuery, (snapshot) => {
+          console.log('[TICKO] Actualización realtime de órdenes recibida:', snapshot.size);
+          const firebaseOrders = snapshot.docs.map(d => d.data());
+          const merged = mergeOrders(firebaseOrders, localOrders(), adminOrderCache());
+          saveAdminOrderCache(merged);
+          renderAdminDashboard(merged, { fromCache: false });
+        }, (err) => {
+          console.warn('[TICKO] Error en escucha realtime de órdenes. Se usará lectura de respaldo.', err);
+          stopOrdersRealtimeListener();
+          getAllOrders().then(orders => renderAdminDashboard(orders, { fromCache: true })).catch(error => console.warn('[TICKO] Error cargando respaldo administrativo.', error));
+        });
+        console.log('[TICKO] Listener realtime de órdenes activo.');
+        return true;
+      } catch (err) {
+        console.warn('[TICKO] No se pudo activar la escucha realtime de órdenes.', err);
+        return false;
+      }
+    }
     async function refreshAdmin(){
       if (!adminSession) return;
       const cachedOrders = mergeOrders(adminOrderCache(), localOrders());
       if (cachedOrders.length) renderAdminDashboard(cachedOrders, { fromCache: true });
+      const realtimeActive = await startOrdersRealtimeListener();
+      if (realtimeActive) return;
       const freshOrders = await getAllOrders();
       renderAdminDashboard(freshOrders, { fromCache: false });
     }
