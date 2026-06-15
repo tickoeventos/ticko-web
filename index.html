@@ -372,7 +372,6 @@
     import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js';
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
     const firebaseConfig = {
       apiKey: 'AIzaSyAIFaXMf_nKkiARE14ZsxAkf4wB80A1OWs',
@@ -396,7 +395,7 @@
     const LOCAL_SCANS_KEY = 'ticko_scans_v3';
     const ADMIN_CACHE_KEY = 'ticko_admin_orders_cache_v1';
     const LOCAL_NOTIFICATIONS_KEY = 'ticko_notifications_v1';
-    let bcvRate = FALLBACK_RATE, bcvEuroRate = FALLBACK_EUR_RATE, db = null, auth = null, storage = null, analytics = null, firebaseReady = false, firebaseAuthPromise = null, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [], ordersUnsubscribe = null;
+    let bcvRate = FALLBACK_RATE, bcvEuroRate = FALLBACK_EUR_RATE, db = null, auth = null, analytics = null, firebaseReady = false, firebaseAuthPromise = null, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [], ordersUnsubscribe = null;
     const $ = id => document.getElementById(id);
     const money = n => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const safeText = v => String(v ?? '').replace(/[<>&"']/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#039;'}[s]));
@@ -444,7 +443,6 @@
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
-        storage = getStorage(app);
         firebaseReady = true;
         firebaseAuthPromise = signInAnonymously(auth)
           .then((credential) => {
@@ -477,13 +475,33 @@
     function saveLocalNotifications(notifications){ writeJson(LOCAL_NOTIFICATIONS_KEY, notifications); }
     function adminOrderCache(){ return readJson(ADMIN_CACHE_KEY); }
     function saveAdminOrderCache(orders){ writeJson(ADMIN_CACHE_KEY, Array.isArray(orders) ? orders : []); }
+    function orderTimestampValue(order){
+      const value = order?.createdAt || order?.updatedAt || null;
+      if (!value) return 0;
+      if (typeof value.toMillis === 'function') return value.toMillis();
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const parsed = Date.parse(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      if (typeof value === 'object') {
+        const seconds = Number(value.seconds ?? value._seconds ?? 0);
+        const nanoseconds = Number(value.nanoseconds ?? value._nanoseconds ?? 0);
+        if (seconds) return (seconds * 1000) + Math.floor(nanoseconds / 1000000);
+      }
+      return 0;
+    }
     function mergeOrders(...sets){
       const map = new Map();
       sets.flat().filter(Boolean).forEach(order => {
         if (!order?.orderId) return;
         map.set(order.orderId, { ...(map.get(order.orderId) || {}), ...order });
       });
-      return Array.from(map.values()).sort((a, b) => String(b.createdAt || b.orderId || '').localeCompare(String(a.createdAt || a.orderId || '')));
+      return Array.from(map.values()).sort((a, b) => {
+        const byDate = orderTimestampValue(b) - orderTimestampValue(a);
+        if (byDate) return byDate;
+        return String(b.orderId || '').localeCompare(String(a.orderId || ''));
+      });
     }
     function syncOrderToAdminCache(order){ saveAdminOrderCache(mergeOrders([order], adminOrderCache())); }
     function patchOrderInLocalStores(orderId, patch){
@@ -525,6 +543,9 @@
       saveLocalNotifications(notifications);
       return { mode: 'local-notification-cache' };
     }
+    const FIRESTORE_PROOF_MAX_DATAURL_CHARS = 620000;
+    const FIRESTORE_PROOF_MAX_DIMENSION = 520;
+    const FIRESTORE_PROOF_START_QUALITY = 0.62;
     const stripProofBinaryData = proof => {
       if (!proof) return null;
       const { dataUrl, blob, file, ...meta } = proof;
@@ -534,11 +555,49 @@
       ...order,
       proof: stripProofBinaryData(order?.proof)
     });
+    async function saveProofToDatabase(proof, orderId){
+      if (!proof) return null;
+      const proofMeta = stripProofBinaryData(proof);
+
+      if (!firebaseReady || !db || !proof.dataUrl) {
+        return proof;
+      }
+
+      try {
+        await ensureAnonymousAuth();
+        if (String(proof.dataUrl || '').length > FIRESTORE_PROOF_MAX_DATAURL_CHARS) {
+          throw new Error('El comprobante comprimido supera el límite interno seguro para Firestore.');
+        }
+
+        const proofDoc = {
+          orderId,
+          name: proof.name || `comprobante-${orderId}.jpg`,
+          type: proof.type || 'image/jpeg',
+          dataUrl: proof.dataUrl,
+          originalSize: proof.originalSize || null,
+          compressedSize: proof.compressedSize || null,
+          width: proof.width || null,
+          height: proof.height || null,
+          maxDimension: proof.maxDimension || null,
+          dataUrlChars: String(proof.dataUrl || '').length,
+          storage: 'firestore-database',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+
+        await withTimeout(setDoc(doc(db, 'orderProofs', orderId), proofDoc), FIREBASE_TIMEOUT_MS, 'guardar comprobante en base de datos');
+        console.log('[TICKO] Comprobante guardado en base de datos:', { orderId, chars: proofDoc.dataUrlChars });
+        return { ...proofMeta, storage: 'firestore-database', proofCollection: 'orderProofs', proofDocId: orderId, databaseSaved: true };
+      } catch (err) {
+        console.warn('[TICKO] No se pudo guardar el comprobante en base de datos. La orden se guardará solo con metadata del comprobante.', err);
+        return { ...proofMeta, storage: 'firestore-database-error', proofCollection: 'orderProofs', proofDocId: orderId, databaseSaved: false, databaseError: err?.message || String(err) };
+      }
+    }
 
     async function queueOrderNotifications(order){
       const adminBody = `Nueva compra TICKO\nOrden: ${order.orderId}\nEvento: ${order.eventTitle}\nCliente: ${order.buyerName}\nCorreo: ${order.buyerEmail}\nCantidad: ${order.qty}\nTotal: ${formatOrderAmount(order)} / ${money(order.totalVES)} VES\nReferencia: ${order.paymentReference}`;
       const buyerBody = `Hola ${order.buyerName || ''}. Tu pago fue recibido y está en revisión. Código de orden: ${order.orderId}. Contacto TICKO Eventos: ${CONTACT_EMAIL}.`;
-      await Promise.allSettled([
+      const notificationResults = await Promise.allSettled([
         queueEmailNotification({
           to: [CONTACT_EMAIL],
           replyTo: order.buyerEmail || CONTACT_EMAIL,
@@ -550,6 +609,16 @@
           message: { subject: `TICKO Eventos - Orden ${order.orderId}`, text: buyerBody, html: buyerBody.replace(/\n/g, '<br>') }
         }) : Promise.resolve()
       ]);
+      console.log('[TICKO] Resultado de notificaciones de compra:', { orderId: order.orderId, notificationResults });
+      return notificationResults;
+    }
+    async function notifyAfterSuccessfulOrderSave(order, saveResult){
+      if (!saveResult || !saveResult.mode) {
+        throw new Error('La orden no confirmó guardado; no se enviarán notificaciones.');
+      }
+      const notificationOrder = sanitizeOrderForFirestore(order);
+      console.log('[TICKO] Orden guardada. Enviando notificaciones de verificación:', { orderId: notificationOrder.orderId, mode: saveResult.mode });
+      await queueOrderNotifications(notificationOrder);
     }
 
     async function saveOrder(order){
@@ -596,8 +665,8 @@
       if (firebaseReady) {
         try {
           await ensureAnonymousAuth();
-          const snap = await withTimeout(getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc'))), FIREBASE_TIMEOUT_MS, 'cargar órdenes desde Firebase');
-          const firebaseOrders = snap.docs.map(d => d.data());
+          const snap = await withTimeout(getDocs(collection(db, 'orders')), FIREBASE_TIMEOUT_MS, 'cargar órdenes desde Firebase');
+          const firebaseOrders = snap.docs.map(d => ({ orderId: d.data()?.orderId || d.id, ...d.data() }));
           const merged = mergeOrders(firebaseOrders, localOrders(), adminOrderCache());
           saveAdminOrderCache(merged);
           return merged;
@@ -710,15 +779,7 @@
       img.onerror = reject;
       img.src = dataUrl;
     });
-    const dataUrlToBlob = dataUrl => {
-      const [header, base64] = String(dataUrl || '').split(',');
-      const mime = header.match(/data:(.*?);base64/)?.[1] || 'application/octet-stream';
-      const binary = atob(base64 || '');
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      return new Blob([bytes], { type: mime });
-    };
-    const canvasToBlob = (canvas, type = 'image/jpeg', quality = 0.78) => new Promise(resolve => {
+const canvasToBlob = (canvas, type = 'image/jpeg', quality = 0.78) => new Promise(resolve => {
       if (canvas.toBlob) canvas.toBlob(blob => resolve(blob), type, quality);
       else {
         const dataUrl = canvas.toDataURL(type, quality);
@@ -728,64 +789,49 @@
         resolve(new Blob([bytes], { type }));
       }
     });
-    async function uploadProofToStorage(proof, orderId){
-      if (!proof) return null;
-      const proofMeta = stripProofBinaryData(proof);
-
-      if (!firebaseReady || !storage || !proof.dataUrl) {
-        return proofMeta;
-      }
-
-      try {
-        await ensureAnonymousAuth();
-        const blob = dataUrlToBlob(proof.dataUrl);
-        const extension = (proof.type || blob.type || 'image/jpeg').includes('png') ? 'png' : 'jpg';
-        const safeName = String(proof.name || `comprobante-${orderId}.${extension}`).replace(/[^a-zA-Z0-9._-]/g, '-');
-        const path = `payment-proofs/${orderId}/${Date.now()}-${safeName}`;
-        const fileRef = storageRef(storage, path);
-        console.log('[TICKO] Subiendo comprobante a Firebase Storage:', { orderId, path });
-        const uploadSnapshot = await withTimeout(uploadBytes(fileRef, blob, {
-          contentType: proof.type || blob.type || 'image/jpeg',
-          customMetadata: { orderId }
-        }), FIREBASE_TIMEOUT_MS, 'subir comprobante a Firebase Storage');
-        const url = await withTimeout(getDownloadURL(uploadSnapshot.ref), FIREBASE_TIMEOUT_MS, 'obtener URL del comprobante');
-        console.log('[TICKO] Comprobante subido correctamente a Firebase Storage:', { orderId, path });
-        return { ...proofMeta, url, path, storage: 'firebase-storage' };
-      } catch (err) {
-        console.warn('[TICKO] No se pudo subir el comprobante a Firebase Storage. Se guardará solo metadata sin base64 en Firestore.', err);
-        return { ...proofMeta, url: null, path: null, storage: 'firebase-storage-error', uploadError: err?.message || String(err) };
-      }
-    }
-
-    async function compressImageFile(file, maxDimension = 800, quality = 0.78){
+    async function compressImageFile(file, maxDimension = FIRESTORE_PROOF_MAX_DIMENSION, quality = FIRESTORE_PROOF_START_QUALITY){
       if (!file) return null;
       if (!file.type?.startsWith('image/')) {
-        const rawDataUrl = await readFileAsDataURL(file);
-        return { name: file.name, type: file.type, dataUrl: rawDataUrl, warning: 'El archivo no era imagen; se adjuntó sin compresión.' };
+        throw new Error('El comprobante debe ser una imagen válida.');
       }
 
       try {
         const originalDataUrl = await readFileAsDataURL(file);
         const img = await dataUrlToImage(originalDataUrl);
-        const longestSide = Math.max(img.width, img.height);
-        const scale = Math.min(1, maxDimension / longestSide);
-        const width = Math.max(1, Math.round(img.width * scale));
-        const height = Math.max(1, Math.round(img.height * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d', { alpha: false });
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-        const blob = await canvasToBlob(canvas, 'image/jpeg', quality);
-        const dataUrl = await readFileAsDataURL(blob);
-        console.log('[TICKO] Imagen comprimida con Canvas:', { originalKB: Math.round(file.size / 1024), compressedKB: Math.round(blob.size / 1024), width, height, maxDimension });
-        return { name: file.name.replace(/\.[^.]+$/, '') + '-ticko-compressed.jpg', type: 'image/jpeg', dataUrl, originalSize: file.size, compressedSize: blob.size, width, height, maxDimension };
+        let currentMaxDimension = Math.min(Number(maxDimension || FIRESTORE_PROOF_MAX_DIMENSION), FIRESTORE_PROOF_MAX_DIMENSION);
+        let currentQuality = Math.min(Number(quality || FIRESTORE_PROOF_START_QUALITY), FIRESTORE_PROOF_START_QUALITY);
+        let lastResult = null;
+
+        for (let attempt = 1; attempt <= 8; attempt++) {
+          const longestSide = Math.max(img.width, img.height);
+          const scale = Math.min(1, currentMaxDimension / longestSide);
+          const width = Math.max(1, Math.round(img.width * scale));
+          const height = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d', { alpha: false });
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const blob = await canvasToBlob(canvas, 'image/jpeg', currentQuality);
+          const dataUrl = await readFileAsDataURL(blob);
+          lastResult = { name: file.name.replace(/\.[^.]+$/, '') + '-ticko-compressed.jpg', type: 'image/jpeg', dataUrl, originalSize: file.size, compressedSize: blob.size, width, height, maxDimension: currentMaxDimension, quality: currentQuality, dataUrlChars: dataUrl.length };
+
+          if (dataUrl.length <= FIRESTORE_PROOF_MAX_DATAURL_CHARS) {
+            console.log('[TICKO] Imagen comprimida para base de datos:', { originalKB: Math.round(file.size / 1024), compressedKB: Math.round(blob.size / 1024), width, height, maxDimension: currentMaxDimension, quality: currentQuality, dataUrlChars: dataUrl.length });
+            return lastResult;
+          }
+
+          currentQuality = Math.max(0.38, currentQuality - 0.06);
+          currentMaxDimension = Math.max(320, Math.round(currentMaxDimension * 0.82));
+        }
+
+        if (lastResult && lastResult.dataUrl.length <= FIRESTORE_PROOF_MAX_DATAURL_CHARS) return lastResult;
+        throw new Error('No se pudo reducir el comprobante al tamaño seguro para base de datos.');
       } catch (err) {
-        console.warn('[TICKO] No se pudo comprimir la imagen. Se adjunta versión original.', err);
-        const dataUrl = await readFileAsDataURL(file);
-        return { name: file.name, type: file.type, dataUrl, warning: 'No se pudo comprimir con Canvas; se adjuntó el original.' };
+        console.warn('[TICKO] No se pudo procesar el comprobante para base de datos.', err);
+        throw err;
       }
     }
 
@@ -815,14 +861,14 @@
         const orderId = generateOrderId();
         const tickets = generateTicketCodes(orderId, qty);
         console.log('[TICKO] Orden preparada:', { orderId, qty, tickets });
-        const compressedProof = await compressImageFile($('paymentProof').files[0], 800, 0.78);
-        const proof = firebaseReady ? await uploadProofToStorage(compressedProof, orderId) : compressedProof;
+        const compressedProof = await compressImageFile($('paymentProof').files[0], FIRESTORE_PROOF_MAX_DIMENSION, FIRESTORE_PROOF_START_QUALITY);
+        const proof = firebaseReady ? await saveProofToDatabase(compressedProof, orderId) : compressedProof;
         console.log('[TICKO] Comprobante procesado para orden:', orderId);
         const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), contactEmail: CONTACT_EMAIL, notificationEmail: CONTACT_EMAIL, qty, tickets, priceUSD: selectedEvent.priceUSD, currency, totalUSD, rateVES: rateForOrder, totalVES: totalUSD * rateForOrder, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
 
         const saveResult = await saveOrder(order);
         console.log('[TICKO] Guardado completado:', saveResult);
-        await queueOrderNotifications(order);
+        await notifyAfterSuccessfulOrderSave(order, saveResult);
         console.log('[TICKO] Notificaciones de compra procesadas:', orderId);
 
         $('purchaseForm').classList.add('hidden');
@@ -900,18 +946,30 @@
 
       try {
         await ensureAnonymousAuth();
-        const ordersQuery = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
-        ordersUnsubscribe = onSnapshot(ordersQuery, (snapshot) => {
-          console.log('[TICKO] Actualización realtime de órdenes recibida:', snapshot.size);
-          const firebaseOrders = snapshot.docs.map(d => d.data());
-          const merged = mergeOrders(firebaseOrders, localOrders(), adminOrderCache());
-          saveAdminOrderCache(merged);
-          renderAdminDashboard(merged, { fromCache: false });
-        }, (err) => {
-          console.warn('[TICKO] Error en escucha realtime de órdenes. Se usará lectura de respaldo.', err);
-          stopOrdersRealtimeListener();
-          getAllOrders().then(orders => renderAdminDashboard(orders, { fromCache: true })).catch(error => console.warn('[TICKO] Error cargando respaldo administrativo.', error));
-        });
+        const ordersRef = collection(db, 'orders');
+        ordersUnsubscribe = onSnapshot(
+          ordersRef,
+          { includeMetadataChanges: true },
+          (snapshot) => {
+            console.log('[TICKO] Actualización realtime de órdenes recibida:', {
+              total: snapshot.size,
+              fromCache: snapshot.metadata.fromCache,
+              pendingWrites: snapshot.metadata.hasPendingWrites
+            });
+
+            const firebaseOrders = snapshot.docs.map(d => ({ orderId: d.data()?.orderId || d.id, ...d.data() }));
+            const merged = mergeOrders(firebaseOrders, localOrders(), adminOrderCache());
+            saveAdminOrderCache(merged);
+            renderAdminDashboard(merged, { fromCache: snapshot.metadata.fromCache });
+          },
+          (err) => {
+            console.warn('[TICKO] Error en escucha realtime de órdenes. Se usará lectura de respaldo.', err);
+            stopOrdersRealtimeListener();
+            getAllOrders()
+              .then(orders => renderAdminDashboard(orders, { fromCache: true }))
+              .catch(error => console.warn('[TICKO] Error cargando respaldo administrativo.', error));
+          }
+        );
         console.log('[TICKO] Listener realtime de órdenes activo.');
         return true;
       } catch (err) {
