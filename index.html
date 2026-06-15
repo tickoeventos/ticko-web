@@ -75,15 +75,115 @@
       color: transparent !important;
     }
     @media (max-width: 640px) { .admin-table { min-width: 780px; } .mobile-title { font-size: 2rem; } }
+
+
+    /* =========================================================
+       TICKO | Fondo dinámico con blur sutil + profundidad 3D
+       El efecto se aplica únicamente al fondo de la página.
+       Tarjetas, textos y botones permanecen sin blur ni opacidad.
+    ========================================================= */
+    body.premium-bg {
+      --ticko-bg-blur-a: 44px;
+      --ticko-bg-blur-b: 58px;
+      --ticko-bg-opacity-a: .52;
+      --ticko-bg-opacity-b: .42;
+      --ticko-bg-x-a: 0px;
+      --ticko-bg-y-a: 0px;
+      --ticko-bg-x-b: 0px;
+      --ticko-bg-y-b: 0px;
+      --ticko-bg-scale-a: 1;
+      --ticko-bg-scale-b: 1;
+      --ticko-bg-rotate-a: 0deg;
+      --ticko-bg-rotate-b: 0deg;
+      position: relative;
+      isolation: isolate;
+      overflow-x: hidden;
+    }
+
+    body.premium-bg::before,
+    body.premium-bg::after {
+      content: "";
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 999px;
+      will-change: transform, opacity, filter;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    body.premium-bg::before {
+      top: -14vh;
+      left: -16vw;
+      width: clamp(360px, 54vw, 860px);
+      height: clamp(360px, 54vw, 860px);
+      opacity: var(--ticko-bg-opacity-a);
+      filter: blur(var(--ticko-bg-blur-a));
+      background:
+        radial-gradient(circle at 35% 35%, rgba(240, 50, 210, .44), transparent 48%),
+        radial-gradient(circle at 70% 70%, rgba(124, 58, 237, .28), transparent 58%);
+      transform:
+        perspective(1200px)
+        translate3d(var(--ticko-bg-x-a), var(--ticko-bg-y-a), -80px)
+        scale(var(--ticko-bg-scale-a))
+        rotate(var(--ticko-bg-rotate-a));
+    }
+
+    body.premium-bg::after {
+      right: -18vw;
+      bottom: -20vh;
+      width: clamp(380px, 58vw, 920px);
+      height: clamp(380px, 58vw, 920px);
+      opacity: var(--ticko-bg-opacity-b);
+      filter: blur(var(--ticko-bg-blur-b));
+      background:
+        radial-gradient(circle at 48% 42%, rgba(124, 58, 237, .38), transparent 48%),
+        radial-gradient(circle at 28% 72%, rgba(240, 50, 210, .22), transparent 62%);
+      transform:
+        perspective(1200px)
+        translate3d(var(--ticko-bg-x-b), var(--ticko-bg-y-b), -140px)
+        scale(var(--ticko-bg-scale-b))
+        rotate(var(--ticko-bg-rotate-b));
+    }
+
+    body.premium-bg > header,
+    body.premium-bg > main,
+    body.premium-bg > #adminSection,
+    body.premium-bg > footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    html:not(.dark) body.premium-bg::before {
+      background:
+        radial-gradient(circle at 35% 35%, rgba(240, 50, 210, .20), transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(124, 58, 237, .14), transparent 60%);
+    }
+
+    html:not(.dark) body.premium-bg::after {
+      background:
+        radial-gradient(circle at 48% 42%, rgba(124, 58, 237, .18), transparent 50%),
+        radial-gradient(circle at 28% 72%, rgba(240, 50, 210, .12), transparent 62%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.premium-bg::before,
+      body.premium-bg::after {
+        transform: none;
+        filter: blur(46px);
+      }
+    }
   </style>
 </head>
 <body class="premium-bg text-white min-h-screen">
   <header class="sticky top-0 z-40 border-b border-white/10 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-      <button id="logoBtn" class="text-3xl font-black tracking-tight text-gradient select-none" title="Toca 5 veces para administración">TICKO</button>
+      <button id="logoBtn" class="select-none text-left" title="Toca 5 veces para administración">
+        <span class="block text-[10px] sm:text-xs font-bold tracking-[0.28em] uppercase text-white/80 leading-none mb-1">Ticko eventos</span>
+        <span class="block text-3xl font-black tracking-tight text-gradient leading-none">TICKO</span>
+      </button>
       <nav class="flex items-center gap-2 sm:gap-4 text-sm font-bold">
         <a href="#events-list" class="hidden sm:inline hover:text-pink-300">Próximos</a>
-        <a href="#ticket-status" class="hover:text-pink-300">Mi boleto</a>
         <button id="themeToggle" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 hover:bg-white/15">☀️</button>
       </nav>
     </div>
@@ -110,7 +210,7 @@
             <div class="rounded-2xl border border-fuchsia-500/30 bg-black/45 p-4">
               <p class="text-xs font-black text-pink-300 tracking-widest">💱 TASA BCV EN TIEMPO REAL</p>
               <h3 class="font-black mt-2">Banco Central de Venezuela</h3>
-              <p class="text-xs text-slate-300 mt-1"><span id="hero-rate">Cargando...</span> VES / USD</p>
+              <p class="text-xs text-slate-300 mt-1">Dólar $: <span id="hero-rate">Cargando...</span> VES · Euro €: <span id="hero-euro-rate">Cargando...</span> VES</p>
             </div>
           </div>
           <div class="mt-auto pt-10 flex justify-center">
@@ -156,6 +256,7 @@
         <h2 class="text-3xl sm:text-4xl font-black">Próximos Eventos Destacados</h2>
       </div>
       <div id="eventsGrid" class="grid md:grid-cols-3 gap-6"></div>
+      <p class="mt-6 text-center text-xs sm:text-sm text-slate-300 font-bold">🔒 Los datos de los clientes están 100% protegidos bajo la implementación de código de TICKO Eventos.</p>
     </section>
   </main>
 
@@ -188,7 +289,7 @@
       <p id="purchaseSub" class="text-sm text-slate-300 mt-1"></p>
       <form id="purchaseForm" class="mt-6 space-y-5">
         <div class="grid sm:grid-cols-3 gap-3">
-          <label class="sm:col-span-1"><span class="text-xs font-black tracking-widest text-pink-200">CANTIDAD</span><input id="ticketQty" required type="number" min="1" step="1" inputmode="numeric" value="1" class="field-white mt-2 w-full rounded-2xl bg-white px-4 py-3 text-center text-xl font-black" /></label>
+          <label class="sm:col-span-1"><span class="text-xs font-black tracking-widest text-pink-200">CANTIDAD</span><input id="ticketQty" required type="number" min="1" step="1" inputmode="numeric" class="field-white mt-2 w-full rounded-2xl bg-white px-4 py-3 text-center text-xl font-black" /></label>
           <div class="sm:col-span-2 rounded-2xl bg-white/5 border border-white/10 p-4"><p class="text-xs text-slate-300">Total a pagar</p><p id="totalUsd" class="text-2xl font-black text-white">$0.00 USD</p><p id="totalVes" class="text-lg font-black text-pink-200">0.00 VES</p><p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p></div>
         </div>
         <div class="grid sm:grid-cols-2 gap-3">
@@ -226,11 +327,12 @@
     <svg class="w-8 h-8 fill-current pointer-events-none" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.017 14.074.99 11.487.99c-5.462 0-9.91 4.444-9.913 9.875-.001 1.718.452 3.4 1.311 4.888l-.993 3.624 3.71-.973zm13.066-7.387c-.348-.174-2.057-1.014-2.377-1.13-.319-.116-.552-.174-.784.174-.233.348-.899 1.13-1.102 1.362-.204.233-.407.261-.755.087-.348-.174-1.472-.543-2.804-1.727-1.037-.924-1.737-2.064-1.941-2.412-.204-.348-.022-.536.152-.71.157-.156.348-.406.522-.609.174-.203.232-.348.348-.58.116-.232.058-.435-.029-.609-.087-.174-.784-1.884-1.074-2.58-.282-.678-.57-.586-.784-.597-.203-.011-.435-.014-.667-.014-.232 0-.609.087-.927.435-.319.348-1.217 1.189-1.217 2.9 0 1.711 1.246 3.364 1.419 3.596.174.232 2.453 3.743 5.939 5.25.829.358 1.476.573 1.981.733.833.265 1.59.227 2.19.138.667-.1 2.057-.841 2.348-1.652.29-.812.29-1.508.203-1.652-.088-.144-.319-.232-.667-.406z"/></svg>
   </a>
 
-  <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-sm text-slate-400">© 2026 TICKO Eventos. Boletería digital con QR.</footer>
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-sm text-slate-400">© 2026 TICKO Eventos. Boletería digital con QR. Contacto: <a class="font-black text-pink-200 hover:text-pink-300" href="mailto:tickoeventos@gmail.com">tickoeventos@gmail.com</a></footer>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -249,7 +351,13 @@
     };
 
     const FALLBACK_RATE = 578;
-    let bcvRate = FALLBACK_RATE, db = null, analytics = null, firebaseReady = false, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
+    const FALLBACK_EUR_RATE = 625;
+    const CONTACT_EMAIL = 'tickoeventos@gmail.com';
+    const LOCAL_ORDERS_KEY = 'ticko_orders_v3';
+    const LOCAL_SCANS_KEY = 'ticko_scans_v3';
+    const ADMIN_CACHE_KEY = 'ticko_admin_orders_cache_v1';
+    const LOCAL_NOTIFICATIONS_KEY = 'ticko_notifications_v1';
+    let bcvRate = FALLBACK_RATE, bcvEuroRate = FALLBACK_EUR_RATE, db = null, auth = null, analytics = null, firebaseReady = false, firebaseAuthPromise = null, selectedEvent = null, adminSession = null, html5QrCode = null, ordersCache = [];
     const $ = id => document.getElementById(id);
     const money = n => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const safeText = v => String(v ?? '').replace(/[<>&"']/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#039;'}[s]));
@@ -275,17 +383,38 @@
       return { orderId: order.orderId, tk: order.orderId, eventId: order.eventId, eventTitle: order.eventTitle, buyerName: order.buyerName, buyerEmail: order.buyerEmail, qty: tickets.length, tickets };
     };
 
+    const QR_ORDER_CODE_REGEX = /^TK-[A-Z0-9]{4,8}(?:-[A-Z0-9]{3,8})?$/;
+    const normalizeOrderCode = value => String(value ?? '').trim().toUpperCase().replace(/\s+/g, '');
+    const isValidOrderCode = value => QR_ORDER_CODE_REGEX.test(normalizeOrderCode(value));
+    const invalidCodeMessage = code => `<p class="text-red-300 text-xl font-black">❌ Formato inválido</p><p class="text-xs text-slate-300 mt-1">El código <b>${safeText(code || 'vacío')}</b> no cumple el formato esperado. Usa un código tipo <b>TK-ABCD-1234</b>.</p>`;
+
     const events = [
-      { id: 'cervezada', title: 'Cervezada Universitaria Polar', short: 'Cervezada Universitaria Polar', desc: 'Primera cervezada universitaria en Falcón con pase digital y QR unificado.', date: '31 de julio', time: '5:00 PM', venue: 'Centro Comercial Las Virtudes / Punto Fijo - Estado Falcón', priceUSD: 15, img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { transferencia: 'Transferencia bancaria\nBanco Mercantil\nTipo de cuenta: Corriente\nNúmero de cuenta: 0105 0058 3910 5829 0533\nC.I.: 13.934.428\nTitular: Elys Padilla', pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246597921\nC.I.: 13.934.428' } },
-      { id: 'michael', title: 'Tributo a Michael Jackson', short: 'Tributo a Michael Jackson', desc: 'Show musical tributo a Michael Jackson con acceso digital y validación QR.', date: '16 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant', priceUSD: 5, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcST4Tp5X8MCwQG4Hny0vpnhUud0YQSBi4yeCg&s', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } },
-      { id: 'newyork', title: 'Vuelve la New York', short: 'Vuelve la New York', desc: 'Evento especial con entrada digital, conciliación por evento y QR unificado.', date: '4 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant', priceUSD: 5, img: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } }
+      { id: 'cervezada', title: 'Cervezada Universitaria Polar', short: 'Cervezada Universitaria Polar', desc: 'Primera cervezada universitaria en Falcón con pase digital y QR unificado.', date: '31 de julio', time: '5:00 PM', venue: 'Centro Comercial Las Virtudes / Punto Fijo - Estado Falcón', priceUSD: 15, currency: 'EUR', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { transferencia: 'Transferencia bancaria\nBanco Mercantil\nTipo de cuenta: Corriente\nNúmero de cuenta: 0105 0058 3910 5829 0533\nC.I.: 13.934.428\nTitular: Elys Padilla', pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246597921\nC.I.: 13.934.428' } },
+      { id: 'michael', title: 'Tributo a Michael Jackson', short: 'Tributo a Michael Jackson', desc: 'Show musical tributo a Michael Jackson con acceso digital y validación QR.', date: '16 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 5, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcST4Tp5X8MCwQG4Hny0vpnhUud0YQSBi4yeCg&s', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } },
+      { id: 'newyork', title: 'Vuelve la New York', short: 'Vuelve la New York', desc: 'Evento especial con entrada digital, conciliación por evento y QR unificado.', date: '4 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 5, img: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } }
     ];
+
+    const eventCurrency = ev => ev?.currency || 'USD';
+    const eventRate = ev => eventCurrency(ev) === 'EUR' ? bcvEuroRate : bcvRate;
+    const formatCurrencyAmount = (amount, currency = 'USD') => currency === 'EUR' ? `${money(amount)}€` : `$${money(amount)}`;
+    const formatEventAmount = ev => `${formatCurrencyAmount(ev.priceUSD, eventCurrency(ev))} ${eventCurrency(ev)}`;
+    const formatOrderAmount = order => `${formatCurrencyAmount(order.totalUSD, order.currency || (order.eventId === 'cervezada' ? 'EUR' : 'USD'))} ${order.currency || (order.eventId === 'cervezada' ? 'EUR' : 'USD')}`;
 
     try {
       if (isFirebaseConfigured()) {
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
+        auth = getAuth(app);
         firebaseReady = true;
+        firebaseAuthPromise = signInAnonymously(auth)
+          .then((credential) => {
+            console.log('[TICKO] Autenticación anónima Firebase activa:', credential.user?.uid || 'sin uid visible');
+            return credential.user;
+          })
+          .catch((err) => {
+            console.warn('[TICKO] No se pudo iniciar autenticación anónima. Se usará respaldo local si Firestore lo requiere.', err);
+            return null;
+          });
 
         isAnalyticsSupported()
           .then((supported) => { if (supported) analytics = getAnalytics(app); })
@@ -294,90 +423,198 @@
     } catch (err) {
       console.warn('Firebase no inicializó. Usando modo local.', err);
     }
-    function localOrders(){ return JSON.parse(localStorage.getItem('ticko_orders_v3') || '[]'); }
-    function saveLocalOrders(orders){ localStorage.setItem('ticko_orders_v3', JSON.stringify(orders)); }
-    function localScans(){ return JSON.parse(localStorage.getItem('ticko_scans_v3') || '[]'); }
-    function saveLocalScans(scans){ localStorage.setItem('ticko_scans_v3', JSON.stringify(scans)); }
+
+    const readJson = (key, fallback = []) => {
+      try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+      catch { return fallback; }
+    };
+    const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+    function localOrders(){ return readJson(LOCAL_ORDERS_KEY); }
+    function saveLocalOrders(orders){ writeJson(LOCAL_ORDERS_KEY, orders); }
+    function localScans(){ return readJson(LOCAL_SCANS_KEY); }
+    function saveLocalScans(scans){ writeJson(LOCAL_SCANS_KEY, scans); }
+    function localNotifications(){ return readJson(LOCAL_NOTIFICATIONS_KEY); }
+    function saveLocalNotifications(notifications){ writeJson(LOCAL_NOTIFICATIONS_KEY, notifications); }
+    function adminOrderCache(){ return readJson(ADMIN_CACHE_KEY); }
+    function saveAdminOrderCache(orders){ writeJson(ADMIN_CACHE_KEY, Array.isArray(orders) ? orders : []); }
+    function mergeOrders(...sets){
+      const map = new Map();
+      sets.flat().filter(Boolean).forEach(order => {
+        if (!order?.orderId) return;
+        map.set(order.orderId, { ...(map.get(order.orderId) || {}), ...order });
+      });
+      return Array.from(map.values()).sort((a, b) => String(b.createdAt || b.orderId || '').localeCompare(String(a.createdAt || a.orderId || '')));
+    }
+    function syncOrderToAdminCache(order){ saveAdminOrderCache(mergeOrders([order], adminOrderCache())); }
+    function patchOrderInLocalStores(orderId, patch){
+      const stamp = new Date().toISOString();
+      const applyPatch = orders => orders.map(o => o.orderId === orderId ? { ...o, ...patch, updatedAt: stamp } : o);
+      saveLocalOrders(applyPatch(localOrders()));
+      saveAdminOrderCache(applyPatch(adminOrderCache()));
+    }
+    async function ensureAnonymousAuth(){
+      if (!firebaseReady || !auth) return null;
+      if (auth.currentUser) return auth.currentUser;
+      if (!firebaseAuthPromise) {
+        firebaseAuthPromise = signInAnonymously(auth)
+          .then((credential) => credential.user)
+          .catch((err) => {
+            console.warn('[TICKO] Falló la autenticación anónima Firebase.', err);
+            return null;
+          });
+      }
+      const user = await withTimeout(firebaseAuthPromise, 8000, 'autenticación anónima Firebase');
+      if (!user) throw new Error('Autenticación anónima no disponible');
+      return user;
+    }
+
+    async function queueEmailNotification(payload){
+      const notification = { ...payload, contactEmail: CONTACT_EMAIL, createdAt: new Date().toISOString() };
+      if (firebaseReady) {
+        try {
+          await ensureAnonymousAuth();
+          await withTimeout(addDoc(collection(db, 'mail'), { ...notification, createdAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'crear notificación por correo');
+          console.log('[TICKO] Notificación de correo encolada:', payload?.message?.subject || payload?.subject || 'sin asunto');
+          return { mode: 'firebase-mail-queue' };
+        } catch (err) {
+          console.warn('[TICKO] No se pudo encolar correo en Firebase. Guardando notificación local.', err);
+        }
+      }
+      const notifications = localNotifications();
+      notifications.unshift(notification);
+      saveLocalNotifications(notifications);
+      return { mode: 'local-notification-cache' };
+    }
+    async function queueOrderNotifications(order){
+      const adminBody = `Nueva compra TICKO\nOrden: ${order.orderId}\nEvento: ${order.eventTitle}\nCliente: ${order.buyerName}\nCorreo: ${order.buyerEmail}\nCantidad: ${order.qty}\nTotal: ${formatOrderAmount(order)} / ${money(order.totalVES)} VES\nReferencia: ${order.paymentReference}`;
+      const buyerBody = `Hola ${order.buyerName || ''}. Tu pago fue recibido y está en revisión. Código de orden: ${order.orderId}. Contacto TICKO Eventos: ${CONTACT_EMAIL}.`;
+      await Promise.allSettled([
+        queueEmailNotification({
+          to: [CONTACT_EMAIL],
+          replyTo: order.buyerEmail || CONTACT_EMAIL,
+          message: { subject: `Nueva compra TICKO ${order.orderId}`, text: adminBody, html: adminBody.replace(/\n/g, '<br>') }
+        }),
+        order.buyerEmail ? queueEmailNotification({
+          to: [order.buyerEmail],
+          replyTo: CONTACT_EMAIL,
+          message: { subject: `TICKO Eventos - Orden ${order.orderId}`, text: buyerBody, html: buyerBody.replace(/\n/g, '<br>') }
+        }) : Promise.resolve()
+      ]);
+    }
 
     async function saveOrder(order){
       console.log('[TICKO] Iniciando guardado de orden:', order.orderId);
       if (firebaseReady) {
         try {
+          await ensureAnonymousAuth();
           console.log('[TICKO] Guardando orden en Firebase:', order.orderId);
           await withTimeout(setDoc(doc(db, 'orders', order.orderId), { ...order, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'guardar orden en Firebase');
+          syncOrderToAdminCache({ ...order, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
           console.log('[TICKO] Orden guardada correctamente en Firebase:', order.orderId);
           return { mode: 'firebase' };
         } catch (err) {
           console.warn('[TICKO] No se pudo guardar en Firebase. Guardando en modo local.', err);
         }
       }
+      const saved = { ...order, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       const orders = localOrders();
-      orders.unshift({ ...order, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-      saveLocalOrders(orders);
+      orders.unshift(saved);
+      saveLocalOrders(mergeOrders(orders));
+      syncOrderToAdminCache(saved);
       console.log('[TICKO] Orden guardada en modo local:', order.orderId);
       return { mode: 'local' };
     }
     async function getOrder(orderId){
+      const cleanOrderId = normalizeOrderCode(orderId);
       if (firebaseReady) {
         try {
-          const snap = await withTimeout(getDoc(doc(db, 'orders', orderId)), FIREBASE_TIMEOUT_MS, 'consultar orden en Firebase');
-          if (snap.exists()) return snap.data();
+          await ensureAnonymousAuth();
+          const snap = await withTimeout(getDoc(doc(db, 'orders', cleanOrderId)), FIREBASE_TIMEOUT_MS, 'consultar orden en Firebase');
+          if (snap.exists()) {
+            const order = snap.data();
+            syncOrderToAdminCache(order);
+            return order;
+          }
         } catch (err) {
-          console.warn('[TICKO] No se pudo consultar Firebase. Consultando modo local.', err);
+          console.warn('[TICKO] No se pudo consultar Firebase. Consultando caché local.', err);
         }
       }
-      return localOrders().find(o => o.orderId === orderId) || null;
+      return mergeOrders(localOrders(), adminOrderCache()).find(o => o.orderId === cleanOrderId) || null;
     }
     async function getAllOrders(){
       if (firebaseReady) {
         try {
+          await ensureAnonymousAuth();
           const snap = await withTimeout(getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc'))), FIREBASE_TIMEOUT_MS, 'cargar órdenes desde Firebase');
-          return snap.docs.map(d => d.data());
+          const firebaseOrders = snap.docs.map(d => d.data());
+          const merged = mergeOrders(firebaseOrders, localOrders(), adminOrderCache());
+          saveAdminOrderCache(merged);
+          return merged;
         } catch (err) {
-          console.warn('[TICKO] No se pudieron cargar órdenes desde Firebase. Usando modo local.', err);
+          console.warn('[TICKO] No se pudieron cargar órdenes desde Firebase. Usando caché local administrativo.', err);
         }
       }
-      return localOrders();
+      return mergeOrders(adminOrderCache(), localOrders());
     }
     async function updateOrder(orderId, patch){
+      const cleanOrderId = normalizeOrderCode(orderId);
       if (firebaseReady) {
         try {
-          await withTimeout(updateDoc(doc(db, 'orders', orderId), { ...patch, updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'actualizar orden en Firebase');
+          await ensureAnonymousAuth();
+          await withTimeout(updateDoc(doc(db, 'orders', cleanOrderId), { ...patch, updatedAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'actualizar orden en Firebase');
+          patchOrderInLocalStores(cleanOrderId, patch);
           return { mode: 'firebase' };
         } catch (err) {
-          console.warn('[TICKO] No se pudo actualizar Firebase. Actualizando modo local.', err);
+          console.warn('[TICKO] No se pudo actualizar Firebase. Actualizando caché local.', err);
         }
       }
-      const orders = localOrders().map(o => o.orderId === orderId ? { ...o, ...patch, updatedAt: new Date().toISOString() } : o);
-      saveLocalOrders(orders);
+      patchOrderInLocalStores(cleanOrderId, patch);
       return { mode: 'local' };
     }
     async function logScan(scan){
+      const normalizedScan = { ...scan, orderId: normalizeOrderCode(scan.orderId || '') || scan.orderId };
       if (firebaseReady) {
         try {
-          await withTimeout(addDoc(collection(db, 'scans'), { ...scan, createdAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'registrar escaneo en Firebase');
+          await ensureAnonymousAuth();
+          await withTimeout(addDoc(collection(db, 'scans'), { ...normalizedScan, createdAt: serverTimestamp() }), FIREBASE_TIMEOUT_MS, 'registrar escaneo en Firebase');
           return { mode: 'firebase' };
         } catch (err) {
           console.warn('[TICKO] No se pudo registrar escaneo en Firebase. Guardando modo local.', err);
         }
       }
       const scans = localScans();
-      scans.unshift({ ...scan, createdAt: new Date().toISOString() });
+      scans.unshift({ ...normalizedScan, createdAt: new Date().toISOString() });
       saveLocalScans(scans);
       return { mode: 'local' };
     }
 
     async function loadRate(){
       try {
-        const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { cache: 'no-store' });
-        const data = await res.json();
-        bcvRate = Number(data.promedio || data.venta || data.compra || FALLBACK_RATE);
-      } catch { bcvRate = FALLBACK_RATE; }
-      $('hero-rate').textContent = money(bcvRate); $('status-rate').textContent = money(bcvRate); renderEvents(); updatePurchaseTotals();
+        const [usdRes, eurRes] = await Promise.all([
+          fetch('https://ve.dolarapi.com/v1/dolares/oficial', { cache: 'no-store' }),
+          fetch('https://ve.dolarapi.com/v1/euros/oficial', { cache: 'no-store' })
+        ]);
+        const usdData = await usdRes.json();
+        const eurData = await eurRes.json();
+        bcvRate = Number(usdData.promedio || usdData.venta || usdData.compra || FALLBACK_RATE);
+        bcvEuroRate = Number(eurData.promedio || eurData.venta || eurData.compra || FALLBACK_EUR_RATE);
+      } catch {
+        bcvRate = FALLBACK_RATE;
+        bcvEuroRate = FALLBACK_EUR_RATE;
+      }
+      $('hero-rate').textContent = money(bcvRate);
+      $('hero-euro-rate').textContent = money(bcvEuroRate);
+      $('status-rate').textContent = money(bcvRate);
+      renderEvents();
+      updatePurchaseTotals();
     }
 
     function renderEvents(){
-      $('eventsGrid').innerHTML = events.map(ev => `<article class="event-card rounded-[2rem] overflow-hidden border border-white/10 glass"><div class="relative h-52"><img src="${ev.img}" alt="${safeText(ev.title)}" class="w-full h-full object-cover"><span class="absolute top-4 right-4 rounded-full bg-white text-slate-950 px-3 py-1 text-xs font-black">$${ev.priceUSD} USD</span></div><div class="p-5"><h3 class="text-2xl font-black">${safeText(ev.title)}</h3><p class="mt-2 text-sm text-slate-300">${safeText(ev.desc)}</p><div class="mt-4 space-y-1 text-xs text-slate-300 font-bold"><p>📅 ${ev.date} • ${ev.time}</p><p>📍 ${ev.venue}</p><p>💵 $${money(ev.priceUSD)} USD</p><p>💱 ${money(ev.priceUSD * bcvRate)} VES</p></div><button data-buy="${ev.id}" class="buy-btn mt-5 w-full rounded-2xl pink-gradient py-3 font-black">Comprar entrada</button></div></article>`).join('');
+      $('eventsGrid').innerHTML = events.map(ev => {
+        const priceText = formatEventAmount(ev);
+        const totalVes = ev.priceUSD * eventRate(ev);
+        return `<article class="event-card rounded-[2rem] overflow-hidden border border-white/10 glass"><div class="relative h-52"><img src="${ev.img}" alt="${safeText(ev.title)}" class="w-full h-full object-cover"><span class="absolute top-4 right-4 rounded-full bg-white text-slate-950 px-3 py-1 text-xs font-black">${priceText}</span></div><div class="p-5"><h3 class="text-2xl font-black">${safeText(ev.title)}</h3><p class="mt-2 text-sm text-slate-300">${safeText(ev.desc)}</p><div class="mt-4 space-y-1 text-xs text-slate-300 font-bold"><p>📅 ${ev.date} • ${ev.time}</p><p>📍 ${ev.venue}</p><p>💵 ${priceText}</p><p>💱 ${money(totalVes)} VES</p></div><button data-buy="${ev.id}" class="buy-btn mt-5 w-full rounded-2xl pink-gradient py-3 font-black">Comprar entrada</button></div></article>`;
+      }).join('');
       document.querySelectorAll('.buy-btn').forEach(btn => btn.addEventListener('click', () => openPurchase(btn.dataset.buy)));
     }
 
@@ -385,15 +622,84 @@
       selectedEvent = events.find(e => e.id === eventId);
       $('purchaseTitle').textContent = 'Comprar: ' + selectedEvent.title;
       $('purchaseSub').textContent = `${selectedEvent.date} • ${selectedEvent.time} • ${selectedEvent.venue}`;
-      $('purchaseForm').reset(); $('ticketQty').value = 1; $('purchaseSuccess').classList.add('hidden'); $('purchaseForm').classList.remove('hidden'); $('paymentDetails').classList.add('hidden');
+      $('purchaseForm').reset(); $('purchaseSuccess').classList.add('hidden'); $('purchaseForm').classList.remove('hidden'); $('paymentDetails').classList.add('hidden');
       const labels = { transferencia: 'Transferencia bancaria', pago_movil: 'Pago móvil', zelle: 'Zelle' };
       $('paymentMethod').innerHTML = '<option value="">Selecciona un método</option>' + Object.keys(selectedEvent.payments).map(key => `<option value="${key}">${labels[key] || key}</option>`).join('');
       $('purchaseModal').classList.remove('hidden'); updatePurchaseTotals();
     }
-    function updatePurchaseTotals(){ if (!selectedEvent) return; const qty = normalizeQty($('ticketQty').value); $('ticketQty').value = qty; const total = qty * selectedEvent.priceUSD; $('totalUsd').textContent = `$${money(total)} USD`; $('totalVes').textContent = `${money(total * bcvRate)} VES`; $('rateNote').textContent = `Tasa BCV: ${money(bcvRate)} VES / USD`; }
+    function updatePurchaseTotals(){
+      if (!selectedEvent) return;
+      const rawQty = $('ticketQty').value;
+      const qty = rawQty === '' ? 0 : normalizeQty(rawQty);
+      const currency = eventCurrency(selectedEvent);
+      const rate = eventRate(selectedEvent);
+      const total = qty * selectedEvent.priceUSD;
+      $('totalUsd').textContent = `${formatCurrencyAmount(total, currency)} ${currency}`;
+      $('totalVes').textContent = `${money(total * rate)} VES`;
+      $('rateNote').textContent = `Tasa BCV ${currency}: ${money(rate)} VES / ${currency}`;
+    }
     function generateOrderId(){ return 'TK-' + Date.now().toString(36).slice(-4).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
-    function parseQrPayload(text){ try { const obj = JSON.parse(text); return obj.orderId || obj.tk || obj.id || text; } catch { return String(text).trim(); } }
-    async function fileToBase64(file){ if (!file) return null; if (file.size > 750000) return { name: file.name, type: file.type, warning: 'Archivo mayor a 750KB. En producción usa Firebase Storage.' }; return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve({ name: file.name, type: file.type, dataUrl: r.result }); r.onerror = reject; r.readAsDataURL(file); }); }
+    function parseQrPayload(text){
+      try {
+        const obj = JSON.parse(text);
+        return obj.orderId || obj.tk || obj.id || text;
+      } catch {
+        return String(text).trim();
+      }
+    }
+    const readFileAsDataURL = file => new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    const dataUrlToImage = dataUrl => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+    const canvasToBlob = (canvas, type = 'image/jpeg', quality = 0.78) => new Promise(resolve => {
+      if (canvas.toBlob) canvas.toBlob(blob => resolve(blob), type, quality);
+      else {
+        const dataUrl = canvas.toDataURL(type, quality);
+        const bin = atob(dataUrl.split(',')[1]);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        resolve(new Blob([bytes], { type }));
+      }
+    });
+    async function compressImageFile(file, maxDimension = 800, quality = 0.78){
+      if (!file) return null;
+      if (!file.type?.startsWith('image/')) {
+        const rawDataUrl = await readFileAsDataURL(file);
+        return { name: file.name, type: file.type, dataUrl: rawDataUrl, warning: 'El archivo no era imagen; se adjuntó sin compresión.' };
+      }
+
+      try {
+        const originalDataUrl = await readFileAsDataURL(file);
+        const img = await dataUrlToImage(originalDataUrl);
+        const longestSide = Math.max(img.width, img.height);
+        const scale = Math.min(1, maxDimension / longestSide);
+        const width = Math.max(1, Math.round(img.width * scale));
+        const height = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        const blob = await canvasToBlob(canvas, 'image/jpeg', quality);
+        const dataUrl = await readFileAsDataURL(blob);
+        console.log('[TICKO] Imagen comprimida con Canvas:', { originalKB: Math.round(file.size / 1024), compressedKB: Math.round(blob.size / 1024), width, height, maxDimension });
+        return { name: file.name.replace(/\.[^.]+$/, '') + '-ticko-compressed.jpg', type: 'image/jpeg', dataUrl, originalSize: file.size, compressedSize: blob.size, width, height, maxDimension };
+      } catch (err) {
+        console.warn('[TICKO] No se pudo comprimir la imagen. Se adjunta versión original.', err);
+        const dataUrl = await readFileAsDataURL(file);
+        return { name: file.name, type: file.type, dataUrl, warning: 'No se pudo comprimir con Canvas; se adjuntó el original.' };
+      }
+    }
 
     $('ticketQty').addEventListener('input', updatePurchaseTotals);
     $('paymentMethod').addEventListener('change', () => { const method = $('paymentMethod').value; if (selectedEvent && selectedEvent.payments[method]) { $('paymentDetails').textContent = selectedEvent.payments[method]; $('paymentDetails').classList.remove('hidden'); } else $('paymentDetails').classList.add('hidden'); });
@@ -416,19 +722,23 @@
         const qty = normalizeQty($('ticketQty').value);
         $('ticketQty').value = qty;
         const totalUSD = qty * selectedEvent.priceUSD;
+        const currency = eventCurrency(selectedEvent);
+        const rateForOrder = eventRate(selectedEvent);
         const orderId = generateOrderId();
         const tickets = generateTicketCodes(orderId, qty);
         console.log('[TICKO] Orden preparada:', { orderId, qty, tickets });
-        const proof = await fileToBase64($('paymentProof').files[0]);
+        const proof = await compressImageFile($('paymentProof').files[0], 800, 0.78);
         console.log('[TICKO] Comprobante procesado para orden:', orderId);
-        const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), qty, tickets, priceUSD: selectedEvent.priceUSD, totalUSD, rateVES: bcvRate, totalVES: totalUSD * bcvRate, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
+        const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), contactEmail: CONTACT_EMAIL, notificationEmail: CONTACT_EMAIL, qty, tickets, priceUSD: selectedEvent.priceUSD, currency, totalUSD, rateVES: rateForOrder, totalVES: totalUSD * rateForOrder, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
 
         const saveResult = await saveOrder(order);
         console.log('[TICKO] Guardado completado:', saveResult);
+        await queueOrderNotifications(order);
+        console.log('[TICKO] Notificaciones de compra procesadas:', orderId);
 
         $('purchaseForm').classList.add('hidden');
         $('purchaseSuccess').classList.remove('hidden');
-        $('purchaseSuccess').innerHTML = `<p class="text-2xl font-black text-amber-200">Pago en revisión</p><p class="mt-2 text-sm text-slate-200">Tu código es:</p><p class="mt-3 text-3xl font-black tracking-widest text-pink-200">${orderId}</p><p class="mt-3 text-xs text-slate-300">Guárdalo para consultar el estado de tu boleto. Al aprobarse, se liberará el QR con tus ${qty} ticket(s) numerados.</p>`;
+        $('purchaseSuccess').innerHTML = `<p class="text-2xl font-black text-amber-200">Pago en revisión</p><p class="mt-2 text-sm text-slate-200">Tu código es:</p><p class="mt-3 text-3xl font-black tracking-widest text-pink-200">${orderId}</p><p class="mt-3 text-xs text-slate-300">Guárdalo para consultar el estado de tu boleto. Al aprobarse, se liberará el QR con tus ${qty} ticket(s) numerados.</p><p class="mt-3 text-xs text-slate-300">Contacto: <a class="font-black text-pink-200 hover:text-pink-300" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>`;
         await refreshAdmin();
         console.log('[TICKO] Flujo de compra finalizado correctamente:', orderId);
       } catch (err) {
@@ -444,12 +754,15 @@
     });
 
     async function renderStatus(){
-      const code = $('statusCodeInput').value.trim().toUpperCase(); if (!code) return alert('Ingresa tu código TK.');
-      const order = await getOrder(code); $('statusResult').classList.remove('hidden');
-      if (!order) { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ No existe</p><p class="text-xs text-slate-300 mt-1">El código no aparece en la base de datos.</p>`; return; }
+      const code = normalizeOrderCode($('statusCodeInput').value);
+      $('statusResult').classList.remove('hidden');
+      if (!code) { $('statusResult').innerHTML = invalidCodeMessage(code); return; }
+      if (!isValidOrderCode(code)) { $('statusResult').innerHTML = invalidCodeMessage(code); return; }
+      const order = await getOrder(code);
+      if (!order) { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ No existe</p><p class="text-xs text-slate-300 mt-1">El código no aparece en la base de datos. Contacto: <a class="font-black text-pink-200" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>`; return; }
       const detailsHtml = renderOrderDetails(order);
-      if (order.status === 'RECHAZADO') { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ Rechazado</p><p class="text-xs text-slate-300 mt-1">Comunícate con soporte y verifica la referencia de pago.</p>${detailsHtml}`; return; }
-      if (order.status === 'PENDIENTE') { $('statusResult').innerHTML = `<p class="text-amber-300 text-xl font-black">⏳ Pendiente de aprobación</p><p class="text-xs text-slate-300 mt-1">Tu pago está en revisión administrativa. El QR se libera cuando administración apruebe el pago.</p>${detailsHtml}`; return; }
+      if (order.status === 'RECHAZADO') { $('statusResult').innerHTML = `<p class="text-red-300 text-xl font-black">❌ Rechazado</p><p class="text-xs text-slate-300 mt-1">Comunícate con soporte y verifica la referencia de pago: <a class="font-black text-pink-200" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>${detailsHtml}`; return; }
+      if (order.status === 'PENDIENTE') { $('statusResult').innerHTML = `<p class="text-amber-300 text-xl font-black">⏳ Pendiente de aprobación</p><p class="text-xs text-slate-300 mt-1">Tu pago está en revisión administrativa. El QR se libera cuando administración apruebe el pago. Contacto: <a class="font-black text-pink-200" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>${detailsHtml}`; return; }
       if (order.scanned) { $('statusResult').innerHTML = `<p class="text-orange-300 text-xl font-black">⚠️ Ya escaneado</p><p class="text-xs text-slate-300 mt-1">Este QR ya fue utilizado para acceso.</p>${detailsHtml}`; return; }
       $('statusResult').innerHTML = `<p class="text-green-300 text-xl font-black">✅ Válido</p><p class="text-xs text-slate-300 mt-1">${safeText(order.eventTitle)} • ${getOrderTickets(order).length} ticket(s)</p>${detailsHtml}<div class="qr-shell mt-4"><canvas id="clientQr"></canvas></div><p class="text-[11px] mt-3 text-slate-400">Este QR contiene la orden, cliente, evento, cantidad y tickets numerados.</p>`;
       setTimeout(() => {
@@ -467,24 +780,42 @@
     let tapCount = 0, tapTimer = null;
     $('logoBtn').addEventListener('click', () => { tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => tapCount = 0, 1300); if (tapCount >= 5) { tapCount = 0; $('loginModal').classList.remove('hidden'); } });
     $('cancelLoginBtn').addEventListener('click', () => $('loginModal').classList.add('hidden'));
-    $('adminLoginForm').addEventListener('submit', async (e) => { e.preventDefault(); const user = $('adminUser').value.trim(); const pass = $('adminPass').value; const match = Object.values(ADMIN_USERS).find(u => u.user === user && u.pass === pass); if (!match) return alert('Acceso denegado.'); adminSession = match; $('loginModal').classList.add('hidden'); $('storefront').classList.add('hidden'); $('adminSection').classList.remove('hidden'); $('adminRoleText').textContent = match.role === 'SUPER_ADMIN' ? 'Súper administrador: métricas completas, conciliación y escáner QR.' : 'Organizador: ventas por evento, estadísticas QR y escáner.'; await refreshAdmin(); });
+    $('adminLoginForm').addEventListener('submit', async (e) => { e.preventDefault(); const user = $('adminUser').value.trim(); const pass = $('adminPass').value; const match = Object.values(ADMIN_USERS).find(u => u.user === user && u.pass === pass); if (!match) return alert('Acceso denegado.'); adminSession = match; $('loginModal').classList.add('hidden'); $('storefront').classList.add('hidden'); $('adminSection').classList.remove('hidden'); $('adminRoleText').textContent = match.role === 'SUPER_ADMIN' ? 'Súper administrador: métricas completas, conciliación, escáner QR y respaldo local en caché.' : 'Organizador: ventas por evento, estadísticas QR, escáner y respaldo local en caché.'; await refreshAdmin(); });
     $('exitAdminBtn').addEventListener('click', () => { adminSession = null; $('adminSection').classList.add('hidden'); $('storefront').classList.remove('hidden'); });
     $('refreshAdminBtn').addEventListener('click', refreshAdmin);
 
-    async function refreshAdmin(){
-      if (!adminSession) return; ordersCache = await getAllOrders(); const scans = firebaseReady ? [] : localScans();
-      const approved = ordersCache.filter(o => o.status === 'APROBADO'); const pending = ordersCache.filter(o => o.status === 'PENDIENTE'); const rejected = ordersCache.filter(o => o.status === 'RECHAZADO'); const scanned = ordersCache.filter(o => o.scanned); const soldTickets = approved.reduce((a,o) => a + Number(o.qty || 0), 0); const totalMoney = approved.reduce((a,o) => a + Number(o.totalUSD || 0), 0); const invalidScans = scans.filter(s => s.result === 'NO_EXISTE').length;
+    function renderAdminDashboard(orders, options = {}){
+      if (!adminSession) return;
+      ordersCache = Array.isArray(orders) ? orders : [];
+      const scans = localScans();
+      const approved = ordersCache.filter(o => o.status === 'APROBADO'); const pending = ordersCache.filter(o => o.status === 'PENDIENTE'); const rejected = ordersCache.filter(o => o.status === 'RECHAZADO'); const scanned = ordersCache.filter(o => o.scanned); const soldTickets = approved.reduce((a,o) => a + Number(o.qty || 0), 0); const totalMoney = approved.reduce((a,o) => a + Number(o.totalUSD || 0), 0); const invalidScans = scans.filter(s => s.result === 'NO_EXISTE' || s.result === 'FORMATO_INVALIDO').length;
+      const cacheLabel = options.fromCache ? 'Caché local' : 'Firebase/local';
       const baseStats = [ ['Eventos', events.length], ['Tickets vendidos', soldTickets], ['Escaneados', scanned.length], ['Verificados', approved.length], ['QR falsos/incorrectos', invalidScans] ];
-      const superExtra = [ ['Dinero recaudado', `$${money(totalMoney)} USD`], ['Pendientes', pending.length], ['Rechazados', rejected.length] ];
-      const stats = adminSession.role === 'SUPER_ADMIN' ? [...baseStats, ...superExtra] : baseStats;
+      const superExtra = [ ['Dinero recaudado', `$${money(totalMoney)} USD`], ['Pendientes', pending.length], ['Rechazados', rejected.length], ['Fuente tabla', cacheLabel] ];
+      const stats = adminSession.role === 'SUPER_ADMIN' ? [...baseStats, ...superExtra] : [...baseStats, ['Fuente tabla', cacheLabel]];
       $('statsGrid').innerHTML = stats.map(([label,value]) => `<div class="rounded-3xl border border-white/10 glass p-5"><p class="text-xs uppercase tracking-widest text-slate-400 font-black">${label}</p><p class="text-2xl font-black mt-2 text-pink-200">${value}</p></div>`).join('');
-      $('adminRows').innerHTML = ordersCache.map(o => { const actions = adminSession.role === 'SUPER_ADMIN' ? `<button data-approve="${o.orderId}" class="rounded-lg bg-green-500/20 text-green-200 px-3 py-1 font-black">Aprobar</button> <button data-reject="${o.orderId}" class="rounded-lg bg-red-500/20 text-red-200 px-3 py-1 font-black">Rechazar</button>` : '<span class="text-slate-400 text-xs">Solo lectura</span>'; return `<tr><td class="p-4 font-mono font-black text-pink-200">${safeText(o.orderId)}</td><td class="p-4"><b>${safeText(o.buyerName)}</b><br><span class="text-xs text-slate-400">${safeText(o.eventTitle)}</span></td><td class="p-4">${o.qty}</td><td class="p-4">$${money(o.totalUSD)}<br><span class="text-xs text-slate-400">${money(o.totalVES)} VES</span></td><td class="p-4"><span class="status-pill ${o.status === 'APROBADO' ? 'bg-green-500/15 text-green-200' : o.status === 'RECHAZADO' ? 'bg-red-500/15 text-red-200' : 'bg-amber-500/15 text-amber-200'}">${o.status}${o.scanned ? ' • ESCANEADO' : ''}</span></td><td class="p-4 text-right space-x-2">${actions}</td></tr>`; }).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">Sin órdenes todavía.</td></tr>`;
+      $('adminRows').innerHTML = ordersCache.map(o => { const actions = adminSession.role === 'SUPER_ADMIN' ? `<button data-approve="${o.orderId}" class="rounded-lg bg-green-500/20 text-green-200 px-3 py-1 font-black">Aprobar</button> <button data-reject="${o.orderId}" class="rounded-lg bg-red-500/20 text-red-200 px-3 py-1 font-black">Rechazar</button>` : '<span class="text-slate-400 text-xs">Solo lectura</span>'; return `<tr><td class="p-4 font-mono font-black text-pink-200">${safeText(o.orderId)}</td><td class="p-4"><b>${safeText(o.buyerName)}</b><br><span class="text-xs text-slate-400">${safeText(o.eventTitle)}</span><br><span class="text-[11px] text-slate-500">${safeText(o.buyerEmail || '')}</span></td><td class="p-4">${o.qty}</td><td class="p-4">${formatOrderAmount(o)}<br><span class="text-xs text-slate-400">${money(o.totalVES)} VES</span></td><td class="p-4"><span class="status-pill ${o.status === 'APROBADO' ? 'bg-green-500/15 text-green-200' : o.status === 'RECHAZADO' ? 'bg-red-500/15 text-red-200' : 'bg-amber-500/15 text-amber-200'}">${o.status}${o.scanned ? ' • ESCANEADO' : ''}</span></td><td class="p-4 text-right space-x-2">${actions}</td></tr>`; }).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">Sin órdenes todavía.</td></tr>`;
       document.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.approve, { status: 'APROBADO' }); await refreshAdmin(); }));
       document.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', async () => { await updateOrder(b.dataset.reject, { status: 'RECHAZADO' }); await refreshAdmin(); }));
     }
+    async function refreshAdmin(){
+      if (!adminSession) return;
+      const cachedOrders = mergeOrders(adminOrderCache(), localOrders());
+      if (cachedOrders.length) renderAdminDashboard(cachedOrders, { fromCache: true });
+      const freshOrders = await getAllOrders();
+      renderAdminDashboard(freshOrders, { fromCache: false });
+    }
 
     async function handleScan(decodedText){
-      const orderId = parseQrPayload(decodedText).toUpperCase(); const order = await getOrder(orderId); let result = '', html = '', patch = null;
+      const orderId = normalizeOrderCode(parseQrPayload(decodedText)); let result = '', html = '', patch = null;
+      if (!isValidOrderCode(orderId)) {
+        result = 'FORMATO_INVALIDO';
+        html = `<p class="text-red-300 text-2xl">❌ Formato inválido</p><p class="text-xs text-slate-300 mt-1">QR rechazado antes de consultar la base de datos: ${safeText(orderId || 'sin código')}</p>`;
+        await logScan({ orderId: orderId || 'FORMATO_INVALIDO', result, raw: String(decodedText || '').slice(0, 250) });
+        $('scanResult').classList.remove('hidden'); $('scanResult').innerHTML = html; await refreshAdmin();
+        return;
+      }
+      const order = await getOrder(orderId);
       if (!order) { result = 'NO_EXISTE'; html = `<p class="text-red-300 text-2xl">❌ No existe</p><p class="text-xs text-slate-300 mt-1">QR falso o incorrecto: ${safeText(orderId)}</p>`; }
       else if (order.status === 'PENDIENTE') { result = 'PENDIENTE'; html = `<p class="text-amber-300 text-2xl">⏳ Pendiente de aprobación</p><p class="text-xs text-slate-300 mt-1">${safeText(order.eventTitle)}</p>${renderOrderDetails(order)}`; }
       else if (order.status === 'RECHAZADO') { result = 'RECHAZADO'; html = `<p class="text-red-300 text-2xl">❌ Rechazado</p><p class="text-xs text-slate-300 mt-1">Pago rechazado.</p>${renderOrderDetails(order)}`; }
@@ -515,6 +846,79 @@
     ['premiumCard'].forEach(id => { const el = $(id); el.addEventListener('touchstart', () => el.classList.add('touching')); el.addEventListener('touchend', () => el.classList.remove('touching')); });
     function setupWhatsappDrag(){ const el = $('whatsapp-float'); let dragging = false, moved = false, sx=0, sy=0, ox=0, oy=0; el.addEventListener('pointerdown', e => { dragging = true; moved = false; sx=e.clientX; sy=e.clientY; const r=el.getBoundingClientRect(); ox=r.left; oy=r.top; el.setPointerCapture(e.pointerId); el.classList.add('dragging'); }); el.addEventListener('pointermove', e => { if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)+Math.abs(dy)>7) moved=true; el.style.left=Math.min(window.innerWidth-70, Math.max(8, ox+dx))+'px'; el.style.top=Math.min(window.innerHeight-70, Math.max(8, oy+dy))+'px'; el.style.right='auto'; el.style.bottom='auto'; }); el.addEventListener('pointerup', e => { dragging=false; el.classList.remove('dragging'); if(moved) e.preventDefault(); }); el.addEventListener('click', e => { if(moved) { e.preventDefault(); moved=false; } }); }
     setupWhatsappDrag(); loadRate();
+  </script>
+
+
+  <script>
+    /* =========================================================
+       TICKO | Scroll depth background controller
+       Solo actualiza variables CSS del fondo. No aplica blur,
+       opacidad ni transformaciones a tarjetas, textos o botones.
+    ========================================================= */
+    (() => {
+      const body = document.body;
+      if (!body || !body.classList.contains('premium-bg')) return;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (reduceMotion.matches) return;
+
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const lerp = (start, end, amount) => start + (end - start) * amount;
+
+      let current = 0;
+      let target = 0;
+      let ticking = false;
+
+      const setVar = (name, value) => body.style.setProperty(name, value);
+
+      const readScrollProgress = () => {
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        target = clamp(window.scrollY / maxScroll, 0, 1);
+        requestTick();
+      };
+
+      const updateBackgroundDepth = () => {
+        current = lerp(current, target, 0.11);
+
+        const entranceFade = clamp(window.scrollY / 760, 0, 1);
+        const softWave = Math.sin(current * Math.PI);
+
+        const blurA = 42 + entranceFade * 18 + current * 18;
+        const blurB = 56 + entranceFade * 20 + current * 22;
+        const opacityA = 0.54 - current * 0.16;
+        const opacityB = 0.44 - current * 0.12;
+
+        setVar('--ticko-bg-blur-a', `${blurA.toFixed(2)}px`);
+        setVar('--ticko-bg-blur-b', `${blurB.toFixed(2)}px`);
+        setVar('--ticko-bg-opacity-a', opacityA.toFixed(3));
+        setVar('--ticko-bg-opacity-b', opacityB.toFixed(3));
+        setVar('--ticko-bg-x-a', `${(softWave * 22).toFixed(2)}px`);
+        setVar('--ticko-bg-y-a', `${(-current * 92).toFixed(2)}px`);
+        setVar('--ticko-bg-x-b', `${(-softWave * 28).toFixed(2)}px`);
+        setVar('--ticko-bg-y-b', `${(current * 118).toFixed(2)}px`);
+        setVar('--ticko-bg-scale-a', (1 + current * 0.075).toFixed(4));
+        setVar('--ticko-bg-scale-b', (1 + current * 0.095).toFixed(4));
+        setVar('--ticko-bg-rotate-a', `${(current * 4.5).toFixed(2)}deg`);
+        setVar('--ticko-bg-rotate-b', `${(-current * 5.5).toFixed(2)}deg`);
+
+        if (Math.abs(target - current) > 0.001) {
+          requestAnimationFrame(updateBackgroundDepth);
+        } else {
+          ticking = false;
+        }
+      };
+
+      const requestTick = () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateBackgroundDepth);
+        }
+      };
+
+      window.addEventListener('scroll', readScrollProgress, { passive: true });
+      window.addEventListener('resize', readScrollProgress, { passive: true });
+      readScrollProgress();
+    })();
   </script>
 </body>
   </html>
