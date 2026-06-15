@@ -38,7 +38,44 @@
     input[type="file"] { color: #e5e7eb !important; }
     .admin-table { min-width: 980px; }
     #whatsapp-float.dragging { opacity: .84; transform: scale(1.05); }
-    #qr-reader video { border-radius: 18px; }
+    #qr-reader {
+      width: 100% !important;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      overflow: hidden;
+    }
+    #qr-reader > div,
+    #qr-reader__scan_region,
+    #qr-reader__dashboard {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #qr-reader__scan_region {
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #qr-reader video,
+    #qr-reader canvas,
+    #qr-reader__scan_region img {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+      border-radius: 18px;
+    }
+    @media (max-width: 640px) {
+      #qr-reader {
+        max-width: 100%;
+      }
+      #qr-reader video,
+      #qr-reader canvas,
+      #qr-reader__scan_region img {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
     .qr-shell { background: #fff; padding: 12px; border-radius: 18px; display: inline-flex; }
     .status-pill { display:inline-flex; align-items:center; gap:.4rem; border-radius:999px; padding:.35rem .7rem; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     html:not(.dark) body.premium-bg {
@@ -827,7 +864,17 @@
     }
     $('startScannerBtn').addEventListener('click', async () => {
       $('qr-reader').classList.remove('hidden'); $('scanResult').classList.add('hidden');
-      try { if (!html5QrCode) html5QrCode = new Html5Qrcode('qr-reader'); if (html5QrCode.isScanning) return; await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } }, async text => { await handleScan(text); }, () => {}); } catch (err) { alert('No se pudo abrir la cámara. Revisa permisos o usa HTTPS/GitHub Pages.'); console.error(err); }
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('getUserMedia no está disponible en este navegador.');
+        const cameraPermissionStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+        cameraPermissionStream.getTracks().forEach(track => track.stop());
+        if (!html5QrCode) html5QrCode = new Html5Qrcode('qr-reader');
+        if (html5QrCode.isScanning) return;
+        await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 250 } }, async text => { await handleScan(text); }, () => {});
+      } catch (err) {
+        alert('Para escanear el QR debes permitir el uso de la cámara. Revisa permisos o usa HTTPS/GitHub Pages.');
+        console.error(err);
+      }
     });
 
     const savedTheme = localStorage.getItem('ticko_theme');
