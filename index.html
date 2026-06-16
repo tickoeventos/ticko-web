@@ -430,27 +430,14 @@
       { id: 'cervezada', title: 'Cervezada Universitaria Polar', short: 'Cervezada Universitaria Polar', desc: 'Primera cervezada universitaria en Falcón con pase digital y QR unificado.', date: '31 de julio', time: '5:00 PM', venue: 'Centro Comercial Las Virtudes / Punto Fijo - Estado Falcón', priceUSD: 15, currency: 'EUR', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { transferencia: 'Transferencia bancaria\nBanco Mercantil\nTipo de cuenta: Corriente\nNúmero de cuenta: 0105 0058 3910 5829 0533\nC.I.: 13.934.428\nTitular: Elys Padilla', pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246597921\nC.I.: 13.934.428' } },
       { id: 'michael', title: 'Tributo a Michael Jackson', short: 'Tributo a Michael Jackson', desc: 'Show musical tributo a Michael Jackson con acceso digital y validación QR.', date: '16 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 5, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcST4Tp5X8MCwQG4Hny0vpnhUud0YQSBi4yeCg&s', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } },
       { id: 'newyork', title: 'Vuelve la New York', short: 'Vuelve la New York', desc: 'Evento especial con entrada digital, conciliación por evento y QR unificado.', date: '4 de julio', time: '8:00 PM', venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 5, img: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=1000&q=80', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Mercantil\nTeléfono: 04246721568\nC.I.: 12.788.115' } },
-  { id: 'diadelpadre-marcial', title: 'Día del Padre con Marcial Molina', short: 'Día del Padre con Marcial Molina', desc: 'Celebra el Día del Padre junto a Marcial Molina con acceso digital y validación QR.',date: '20 de junio',time: '8:00 PM',venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 3500, currency: 'VES', img: 'https://i.postimg.cc/gJ4BLhHf/images-(10).jpg', organizer: 'Ticko Eventos', payments: {pago_movil: 'Pago móvil\nBanco: Provincial\nTeléfono: 04246263366\nC.I.: 17309816'  }  }
+      { id: 'diadelpadre-marcial', title: 'Día del Padre con Marcial Molina', short: 'Día del Padre con Marcial Molina', desc: 'Celebra el Día del Padre junto a Marcial Molina con acceso digital y validación QR.',date: '20 de junio',time: '8:00 PM', venue: 'La Oficina Sport & Restaurant - Punto Fijo, Estado Falcón', priceUSD: 5, img: 'https://i.postimg.cc/gJ4BLhHf/images-(10).jpg', organizer: 'Ticko Eventos', payments: { pago_movil: 'Pago móvil\nBanco: Provincial\nTeléfono: 04246263366\nC.I.: 17309816' } },
     ];
 
-    const eventRate = ev => {
-  const currency = eventCurrency(ev);
-
-  if (currency === 'EUR') return bcvEuroRate;
-  if (currency === 'VES') return 1;
-
-  return bcvRate;
-};
-
-const formatCurrencyAmount = (amount, currency = 'USD') => {
-  if (currency === 'EUR') return `${money(amount)}€`;
-  if (currency === 'VES') return `${money(amount)} Bs.`;
-
-  return `$${money(amount)}`;
-};
-```
-
-
+    const eventCurrency = ev => ev?.currency || 'USD';
+    const eventRate = ev => eventCurrency(ev) === 'EUR' ? bcvEuroRate : bcvRate;
+    const formatCurrencyAmount = (amount, currency = 'USD') => currency === 'EUR' ? `${money(amount)}€` : `$${money(amount)}`;
+    const formatEventAmount = ev => `${formatCurrencyAmount(ev.priceUSD, eventCurrency(ev))} ${eventCurrency(ev)}`;
+    const formatOrderAmount = order => `${formatCurrencyAmount(order.totalUSD, order.currency || (order.eventId === 'cervezada' ? 'EUR' : 'USD'))} ${order.currency || (order.eventId === 'cervezada' ? 'EUR' : 'USD')}`;
 
     try {
       if (isFirebaseConfigured()) {
