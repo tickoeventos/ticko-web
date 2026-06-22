@@ -767,7 +767,8 @@
         const tickets = generateTicketCodes(orderId, qty);
         console.log('[TICKO] Orden preparada:', { orderId, qty, tickets });
         const proof = await compressImageFile($('paymentProof').files[0], 800, 0.78);
-        console.log('[TICKO] Comprobante procesado para orden:', orderId);
+        paymentReference: document.getElementById('paymentReference')?.value || '',
+        console.log('[TICKO] Comprobante procesado para orden:', orderId );
         const order = { orderId, eventId: selectedEvent.id, eventTitle: selectedEvent.title, organizer: selectedEvent.organizer, buyerName: $('buyerName').value.trim(), buyerEmail: $('buyerEmail').value.trim(), contactEmail: CONTACT_EMAIL, notificationEmail: CONTACT_EMAIL, qty, tickets, priceUSD: selectedEvent.priceUSD, currency, totalUSD, rateVES: rateForOrder, totalVES: totalUSD * rateForOrder, paymentMethod: $('paymentMethod').value, paymentReference: $('paymentReference').value.trim(), proof, status: 'PENDIENTE', scanned: false, scanCount: 0 };
 
         const saveResult = await saveOrder(order);
